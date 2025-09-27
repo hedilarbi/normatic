@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Geist, Inter, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
 
@@ -19,14 +19,30 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
+const inter = Inter({
+  variable: "--font-inter",
+  display: "swap",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
+const jetBrains = JetBrains_Mono({
+  variable: "--font-jetbrains",
+  display: "swap",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.className} antialiased`}>
+    <html lang="fr" suppressHydrationWarning>
+      <body
+        className={`${geistSans.className} ${inter.variable} ${jetBrains.variable} antialiased`}
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

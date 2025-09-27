@@ -13,6 +13,11 @@ export default {
       colors: {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        "primary-blue": "#3b82f6",
+        "primary-purple": "#8B5CF6",
+        "primary-green": "#10b981",
+        "primary-orange": "#f59e0b",
+        "primary-dark": "#111827",
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
@@ -51,6 +56,11 @@ export default {
           "4": "hsl(var(--chart-4))",
           "5": "hsl(var(--chart-5))",
         },
+      },
+      fontFamily: {
+        inter: ["var(--font-inter)", "sans-serif"],
+
+        jetbrains: ["var(--font-jetbrains)", "monospace"],
       },
       borderRadius: {
         lg: "var(--radius)",
