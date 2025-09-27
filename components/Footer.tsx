@@ -1,3 +1,5 @@
+import Image from "next/image";
+import Link from "next/link";
 import React from "react";
 import { FaGithub, FaLinkedin, FaTwitter } from "react-icons/fa6";
 
@@ -7,29 +9,18 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="grid lg:grid-cols-5 gap-8">
           <div className="lg:col-span-2 space-y-6">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-primary-blue rounded-xl flex items-center justify-center">
-                <i className="text-white" data-fa-i2svg="">
-                  <svg
-                    className="svg-inline--fa fa-shield-halved"
-                    aria-hidden="true"
-                    focusable="false"
-                    data-prefix="fas"
-                    data-icon="shield-halved"
-                    role="img"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 512 512"
-                    data-fa-i2svg=""
-                  >
-                    <path
-                      fill="currentColor"
-                      d="M256 0c4.6 0 9.2 1 13.4 2.9L457.7 82.8c22 9.3 38.4 31 38.3 57.2c-.5 99.2-41.3 280.7-213.6 363.2c-16.7 8-36.1 8-52.8 0C57.3 420.7 16.5 239.2 16 140c-.1-26.2 16.3-47.9 38.3-57.2L242.7 2.9C246.8 1 251.4 0 256 0zm0 66.8V444.8C394 378 431.1 230.1 432 141.4L256 66.8l0 0z"
-                    ></path>
-                  </svg>
-                </i>
-              </div>
-              <span className="text-2xl font-bold font-inter">Normatic</span>
-            </div>
+            <Link
+              href="/"
+              className="text-2xl font-bold font-inter text-primary-dark"
+            >
+              <Image
+                src="/logoLight.svg"
+                alt="Normatic Logo"
+                width={160}
+                height={70}
+                className="object-contain w-auto h-16"
+              />
+            </Link>
 
             <p className="text-gray-300 font-manrope max-w-md">
               Automatisez votre conformité réglementaire avec l&apos;IA. RGPD,
@@ -122,7 +113,7 @@ const Footer = () => {
 
         <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
           <div className="text-gray-400 font-manrope text-sm">
-            © 2024 Normatic. Tous droits réservés.
+            © 2025 Normatic. Tous droits réservés.
           </div>
 
           <div className="flex space-x-6 text-sm font-manrope text-gray-400">

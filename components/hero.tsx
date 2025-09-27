@@ -10,7 +10,7 @@ const Hero = () => {
   return (
     <section
       id="hero"
-      className="pt-24 pb-16 bg-gradient-to-br from-gray-50 to-white"
+      className="pt-28 pb-16 bg-gradient-to-br from-gray-50 to-white"
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 items-center">

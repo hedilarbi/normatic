@@ -63,7 +63,7 @@ const Pricing = () => {
                     </svg>
                   </i>
                   <span className="font-manrope text-gray-700">
-                    Jusqu'à 5 sites web
+                    Jusqu&apos;à 5 sites web
                   </span>
                 </div>
                 <div className="flex items-center space-x-3">
@@ -161,7 +161,7 @@ const Pricing = () => {
               </div>
 
               <button className="w-full bg-primary-blue text-white py-3 rounded-xl font-semibold font-inter hover:bg-blue-600 transition-colors">
-                Commencer l'essai gratuit
+                Commencer l&apos;essai gratuit
               </button>
             </div>
           </div>
@@ -217,7 +217,7 @@ const Pricing = () => {
                       </svg>
                     </i>
                     <span className="font-manrope text-gray-700">
-                      Jusqu'à 20 sites web
+                      Jusqu&apos;à 20 sites web
                     </span>
                   </div>
                   <div className="flex items-center space-x-3">
@@ -338,7 +338,7 @@ const Pricing = () => {
                 </div>
 
                 <button className="w-full bg-gradient-to-r from-primary-blue to-primary-purple text-white py-3 rounded-xl font-semibold font-inter hover:opacity-90 transition-opacity">
-                  Commencer l'essai gratuit
+                  Commencer l&apos;essai gratuit
                 </button>
               </div>
             </div>
