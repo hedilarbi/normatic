@@ -11,6 +11,7 @@ const Regulations = () => {
           <h2 className="text-4xl lg:text-5xl font-bold font-inter text-primary-dark">
             Toutes les réglementations européennes
             <span className="bg-gradient-to-r from-primary-purple to-primary-orange bg-clip-text text-transparent">
+              {" "}
               en une seule plateforme
             </span>
           </h2>

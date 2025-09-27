@@ -8,6 +8,7 @@ const HowItWorks = () => {
           <h2 className="text-4xl lg:text-5xl font-bold font-inter text-primary-dark">
             Comment fonctionne
             <span className="bg-gradient-to-r from-primary-blue to-primary-purple bg-clip-text text-transparent">
+              {" "}
               Normatic
             </span>
           </h2>

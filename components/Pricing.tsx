@@ -8,6 +8,7 @@ const Pricing = () => {
           <h2 className="text-4xl lg:text-5xl font-bold font-inter text-primary-dark">
             Des tarifs
             <span className="bg-gradient-to-r from-primary-blue to-primary-green bg-clip-text text-transparent">
+              {" "}
               transparents et abordables
             </span>
           </h2>

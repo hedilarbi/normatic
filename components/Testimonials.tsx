@@ -9,6 +9,7 @@ const Testimonials = () => {
           <h2 className="text-4xl lg:text-5xl font-bold font-inter text-primary-dark">
             Ils nous font
             <span className="bg-gradient-to-r from-primary-green to-primary-blue bg-clip-text text-transparent">
+              {" "}
               confiance
             </span>
           </h2>

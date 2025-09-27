@@ -2,7 +2,8 @@ import Cta from "@/components/Cta";
 import DashboardPreview from "@/components/DashboardPreview";
 import Faq from "@/components/Faq";
 import Features from "@/components/Features";
-import Hero from "@/components/Hero";
+
+import HeroSection from "@/components/HeroSection";
 import HowItWorks from "@/components/HowItWorks";
 import Pricing from "@/components/Pricing";
 import Regulations from "@/components/Regulations";
@@ -12,7 +13,7 @@ import TrustedBy from "@/components/TrustedBy";
 export default async function ProtectedPage() {
   return (
     <>
-      <Hero />
+      <HeroSection />
       <TrustedBy />
       <Features />
       <Regulations />
