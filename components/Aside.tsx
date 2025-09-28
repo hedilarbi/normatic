@@ -40,7 +40,7 @@ const Aside = () => {
               <div className="text-2xl">
                 <FaChartLine />
               </div>
-              <span className="font-medium">Vue d'ensemble</span>
+              <span className="font-medium">Vue d&apos;ensemble</span>
             </span>
             <span className="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 cursor-pointer">
               <div className="border border-dotted border-gray-600 rounded-full p-1 text-gray-600">
