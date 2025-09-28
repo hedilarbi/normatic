@@ -4,7 +4,7 @@ const TrustedBy = () => {
   return (
     <section
       id="trusted-by"
-      className="py-16 bg-white text-black font-inter font-medium"
+      className="py-16 bg-gray-50 text-black font-inter font-medium"
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="text-center space-y-8">

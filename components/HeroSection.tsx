@@ -2,7 +2,6 @@ import React from "react";
 import {
   FaCircleCheck,
   FaExclamation,
-  FaPlay,
   FaRocket,
   FaTriangleExclamation,
 } from "react-icons/fa6";
@@ -44,12 +43,6 @@ const HeroSection = () => {
                   <FaRocket />
                 </div>
                 Commencer gratuitement
-              </button>
-              <button className="flex items-center gap-2 border-2 border-gray-200 text-gray-700 px-8 py-4 rounded-xl font-semibold font-inter hover:border-primary-blue hover:text-primary-blue transition-all">
-                <div>
-                  <FaPlay />
-                </div>
-                Voir la démo
               </button>
             </div>
 

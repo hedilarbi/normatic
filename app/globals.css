@@ -67,3 +67,10 @@
     @apply bg-background text-foreground;
   }
 }
+html {
+  scroll-behavior: smooth;
+}
+/* If you have a fixed header, this avoids content hiding under it */
+[id] {
+  scroll-margin-top: 72px;
+}

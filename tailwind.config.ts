@@ -18,6 +18,12 @@ export default {
         "primary-green": "#10b981",
         "primary-orange": "#f59e0b",
         "primary-dark": "#111827",
+        success: "rgb(16 185 129)",
+        warning: "rgb(245 158 11)",
+        purple: "rgb(139 92 246 )",
+        dark: "#111827",
+        primary: "#3b82f6",
+        "light-gray": "#e5e7eb",
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
@@ -26,10 +32,7 @@ export default {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
         },
-        primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
-        },
+
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",

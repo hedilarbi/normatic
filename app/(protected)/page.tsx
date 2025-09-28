@@ -6,6 +6,7 @@ import Features from "@/components/Features";
 import HeroSection from "@/components/HeroSection";
 import HowItWorks from "@/components/HowItWorks";
 import Pricing from "@/components/Pricing";
+import Problem from "@/components/Problem";
 import Regulations from "@/components/Regulations";
 import Testimonials from "@/components/Testimonials";
 import TrustedBy from "@/components/TrustedBy";
@@ -15,6 +16,7 @@ export default async function ProtectedPage() {
     <>
       <HeroSection />
       <TrustedBy />
+      <Problem />
       <Features />
       <Regulations />
       <HowItWorks />

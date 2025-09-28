@@ -26,66 +26,45 @@ const Header = () => {
 
             <nav className="hidden lg:flex items-center space-x-8">
               <div className="relative group">
-                <button className="flex items-center space-x-1 text-gray-700 hover:text-primary-blue font-medium font-inter">
+                <Link
+                  href="#features"
+                  className="flex items-center space-x-1 text-gray-700 hover:text-primary-blue font-medium font-inter"
+                >
                   <span>Solutions</span>
-                  <i className="text-xs" data-fa-i2svg="">
-                    <svg
-                      className="svg-inline--fa fa-chevron-down"
-                      aria-hidden="true"
-                      focusable="false"
-                      data-prefix="fas"
-                      data-icon="chevron-down"
-                      role="img"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 512 512"
-                      data-fa-i2svg=""
-                    >
-                      <path
-                        fill="currentColor"
-                        d="M233.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 338.7 86.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z"
-                      ></path>
-                    </svg>
-                  </i>
-                </button>
+                </Link>
               </div>
               <div className="relative group">
-                <button className="flex items-center space-x-1 text-gray-700 hover:text-primary-blue font-medium font-inter">
+                <Link
+                  href="#regulations"
+                  className="flex items-center space-x-1 text-gray-700 hover:text-primary-blue font-medium font-inter"
+                >
                   <span>Conformité</span>
-                  <i className="text-xs" data-fa-i2svg="">
-                    <svg
-                      className="svg-inline--fa fa-chevron-down"
-                      aria-hidden="true"
-                      focusable="false"
-                      data-prefix="fas"
-                      data-icon="chevron-down"
-                      role="img"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 512 512"
-                      data-fa-i2svg=""
-                    >
-                      <path
-                        fill="currentColor"
-                        d="M233.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 338.7 86.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z"
-                      ></path>
-                    </svg>
-                  </i>
-                </button>
+                </Link>
               </div>
-              <span className="text-gray-700 hover:text-primary-blue font-medium font-inter cursor-pointer">
+              <Link
+                href="#pricing"
+                className="text-gray-700 hover:text-primary-blue font-medium font-inter cursor-pointer"
+              >
                 Tarifs
-              </span>
-              <span className="text-gray-700 hover:text-primary-blue font-medium font-inter cursor-pointer">
-                Ressources
-              </span>
+              </Link>
+              <Link
+                href="#faq"
+                className="text-gray-700 hover:text-primary-blue font-medium font-inter cursor-pointer"
+              >
+                FAQ
+              </Link>
             </nav>
           </div>
 
           <div className="flex items-center space-x-4">
-            <button className="text-gray-700 hover:text-primary-blue font-medium font-inter">
+            <Link
+              href="/connexion"
+              className="text-gray-700 hover:text-primary-blue font-medium font-inter"
+            >
               Connexion
-            </button>
+            </Link>
             <button className="bg-primary-blue text-white px-6 py-2 rounded-lg font-medium font-inter hover:bg-blue-600 transition-colors">
-              Démo gratuite
+              Scan gratuit
             </button>
           </div>
         </div>
