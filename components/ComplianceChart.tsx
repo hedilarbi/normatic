@@ -143,7 +143,7 @@ export default function ComplianceChart() {
         {
           type: "pie",
           name: "Violations",
-          data: pieData as any,
+          data: pieData,
         },
       ],
     }),
