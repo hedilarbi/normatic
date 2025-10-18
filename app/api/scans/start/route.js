@@ -52,6 +52,15 @@ export async function POST(req) {
     status: "pending",
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
     free_scran: true,
+    rgpdScan: {
+      url: legal.privacy || null,
+    },
+    mlScan: {
+      url: legal.mentions || null,
+    },
+    cgvScan: {
+      url: legal.cgv || null,
+    },
   });
 
   // notify external webhook (n8n)

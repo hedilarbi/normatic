@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React from "react";
 import { FaStar } from "react-icons/fa6";
 
@@ -38,7 +39,7 @@ const Testimonials = () => {
               </blockquote>
 
               <div className="flex items-center space-x-4">
-                <img
+                <Image
                   src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg"
                   alt="Marie Dubois"
                   className="w-12 h-12 rounded-full"
@@ -73,7 +74,7 @@ const Testimonials = () => {
               </blockquote>
 
               <div className="flex items-center space-x-4">
-                <img
+                <Image
                   src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-8.jpg"
                   alt="Jean-Pierre Martin"
                   className="w-12 h-12 rounded-full"
@@ -108,7 +109,7 @@ const Testimonials = () => {
               </blockquote>
 
               <div className="flex items-center space-x-4">
-                <img
+                <Image
                   src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-6.jpg"
                   alt="Sophie Laurent"
                   className="w-12 h-12 rounded-full"

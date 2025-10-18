@@ -1,11 +1,7 @@
-import Aside from "@/components/Aside";
-import DashboardHeader from "@/components/DashboardHeader";
+import Aside from "@/components/dashboard/Aside";
+import DashboardHeader from "@/components/dashboard/DashboardHeader";
 
-export default function ProtectedLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function ProtectedLayout({ children }) {
   return (
     <div>
       <DashboardHeader />

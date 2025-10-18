@@ -36,7 +36,8 @@
     "app/(protected)/inscription/page.jsx",
     "app/(protected)/error/page.jsx",
     "app/(protected)/connexion/page.jsx",
-    "context/AuthContext.jsx"
+    "context/AuthContext.jsx",
+    "app/(protected)/page.jsx"
   ],
   "exclude": ["node_modules"]
 }
