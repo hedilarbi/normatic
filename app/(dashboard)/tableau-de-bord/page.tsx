@@ -7,7 +7,7 @@ import ScanMonitoring from "@/components/ScanMonitoring";
 import SettingsConfig from "@/components/SettingsConfig";
 import React from "react";
 
-const page = () => {
+const Page = () => {
   return (
     <>
       <DashboardHero />
@@ -21,4 +21,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

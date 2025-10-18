@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Inter, JetBrains_Mono } from "next/font/google";
+import { Geist, Inter, JetBrains_Mono, Manrope } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
-
+import "react-phone-number-input/style.css";
+import "react-international-phone/style.css";
+import { AuthProvider } from "@/context/AuthContext";
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : "http://localhost:3000";
@@ -33,6 +35,12 @@ const jetBrains = JetBrains_Mono({
   weight: ["400", "500", "600", "700"],
 });
 
+const manrope = Manrope({
+  variable: "--font-manrope",
+  display: "swap",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -41,16 +49,18 @@ export default function RootLayout({
   return (
     <html lang="fr" suppressHydrationWarning>
       <body
-        className={`${geistSans.className} ${inter.variable} ${jetBrains.variable} antialiased`}
+        className={`${geistSans.className} ${inter.variable} ${jetBrains.variable} ${manrope.variable} antialiased`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider>
+        <AuthProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );

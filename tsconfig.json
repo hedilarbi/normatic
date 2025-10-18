@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -24,18 +20,23 @@
       }
     ],
     "paths": {
-      "@/*": [
-        "./*"
-      ]
+      "@/*": ["./*"]
     }
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "app/(protected)/confirm/route.js",
+    "app/(protected)/layout.jsx",
+    "app/(protected)/update-password/page.jsx",
+    "app/(protected)/sign-up-success/page.jsx",
+    "app/(protected)/mot-de-passe-oublie/page.jsx",
+    "app/(protected)/inscription/page.jsx",
+    "app/(protected)/error/page.jsx",
+    "app/(protected)/connexion/page.jsx",
+    "context/AuthContext.jsx"
   ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }

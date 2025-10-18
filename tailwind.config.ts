@@ -62,7 +62,7 @@ export default {
       },
       fontFamily: {
         inter: ["var(--font-inter)", "sans-serif"],
-
+        manrope: ["var(--font-manrope)", "sans-serif"],
         jetbrains: ["var(--font-jetbrains)", "monospace"],
       },
       borderRadius: {

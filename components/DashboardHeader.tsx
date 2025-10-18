@@ -3,6 +3,8 @@ import Link from "next/link";
 import React from "react";
 import { FaBell, FaMagnifyingGlass } from "react-icons/fa6";
 
+import { AuthButton } from "./auth-button";
+
 const DashboardHeader = () => {
   return (
     <header
@@ -63,6 +65,7 @@ const DashboardHeader = () => {
               3
             </span>
           </button>
+          <AuthButton />
           <div className="flex items-center space-x-3">
             <img
               src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg"

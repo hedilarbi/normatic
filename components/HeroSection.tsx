@@ -1,3 +1,4 @@
+import Link from "next/link";
 import React from "react";
 import {
   FaCircleCheck,
@@ -38,12 +39,15 @@ const HeroSection = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <button className=" flex items-center gap-2 bg-primary-blue text-white px-8 py-4 rounded-xl font-semibold font-inter hover:bg-blue-600 transition-all transform hover:scale-105 shadow-lg">
-                <div className="text-white">
+              <Link
+                href="/scan-express"
+                className="inline-flex items-center gap-2 bg-primary-blue text-white px-8 py-4 rounded-xl font-semibold font-inter hover:bg-blue-600 transition-all transform hover:scale-105 shadow-lg"
+              >
+                <span className="text-white">
                   <FaRocket />
-                </div>
+                </span>
                 Commencer gratuitement
-              </button>
+              </Link>
             </div>
 
             <div className="flex items-center space-x-6 pt-4">
