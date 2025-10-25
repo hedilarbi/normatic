@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Inter, JetBrains_Mono, Manrope } from "next/font/google";
-import { ThemeProvider } from "next-themes";
+
 import "./globals.css";
 import "react-phone-number-input/style.css";
 import "react-international-phone/style.css";
@@ -51,16 +51,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.className} ${inter.variable} ${jetBrains.variable} ${manrope.variable} antialiased`}
       >
-        <AuthProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            {children}
-          </ThemeProvider>
-        </AuthProvider>
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );

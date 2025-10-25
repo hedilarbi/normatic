@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import Link from "next/link";
 import { Github, LogIn } from "lucide-react";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 export default function ConnexionPage() {
   const [email, setEmail] = useState("");
@@ -12,9 +13,42 @@ export default function ConnexionPage() {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState(null);
 
-  const signInEmail = async () => {};
+  const oauthSignIn = async (provider) => {
+    setErr(null);
+    setLoading(true);
+    try {
+      if (provider === "google") {
+        const provider = new GoogleAuthProvider();
+        await signInWithPopup(auth, provider);
+      } else if (provider === "github") {
+        const provider = new GithubAuthProvider();
+        await signInWithPopup(auth, provider);
+      }
+    } catch (err) {
+      setErr("Échec de la connexion. Réessaie.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const oauth = async (provider) => {};
+  const emailSignIn = async () => {
+    setErr(null);
+    setLoading(true);
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+      await sendEmailVerification(user);
+      setStep(1);
+    } catch (err) {
+      setErr("Échec de l'inscription. Réessaie.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-[100dvh] grid place-items-center bg-white">

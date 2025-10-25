@@ -43,6 +43,8 @@ const Testimonials = () => {
                   src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg"
                   alt="Marie Dubois"
                   className="w-12 h-12 rounded-full"
+                  width={48}
+                  height={48}
                 />
                 <div>
                   <div className="font-semibold font-inter text-primary-dark">
@@ -78,6 +80,8 @@ const Testimonials = () => {
                   src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-8.jpg"
                   alt="Jean-Pierre Martin"
                   className="w-12 h-12 rounded-full"
+                  width={48}
+                  height={48}
                 />
                 <div>
                   <div className="font-semibold font-inter text-primary-dark">
@@ -113,6 +117,8 @@ const Testimonials = () => {
                   src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-6.jpg"
                   alt="Sophie Laurent"
                   className="w-12 h-12 rounded-full"
+                  width={48}
+                  height={48}
                 />
                 <div>
                   <div className="font-semibold font-inter text-primary-dark">

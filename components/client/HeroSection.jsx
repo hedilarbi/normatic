@@ -33,8 +33,9 @@ const HeroSection = () => {
 
               <p className="text-xl text-gray-600 font-manrope leading-relaxed">
                 Normatic détecte et corrige automatiquement les non-conformités
-                RGPD, WCAG, AI Act, DSA et DMA. Protégez votre entreprise avec
-                une surveillance continue et des corrections en temps réel.
+                RGPD, WCAG, RGPD, Cookies, Mention Légale, CGV, AI Act, DSA et
+                DMA. Protégez votre entreprise avec une surveillance continue et
+                en temps réel.
               </p>
             </div>
 
@@ -59,14 +60,14 @@ const HeroSection = () => {
                   Scan en temps réel
                 </span>
               </div>
-              <div className="flex items-center space-x-2">
+              {/* <div className="flex items-center space-x-2">
                 <div className="text-primary-green">
                   <FaCircleCheck />
                 </div>
                 <span className="text-sm font-medium font-inter text-gray-600">
                   Corrections automatiques
                 </span>
-              </div>
+              </div> */}
               <div className="flex items-center space-x-2">
                 <div className="text-primary-green">
                   <FaCircleCheck />

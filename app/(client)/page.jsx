@@ -15,7 +15,7 @@ export default async function ProtectedPage() {
   return (
     <>
       <HeroSection />
-      <TrustedBy />
+      {/* <TrustedBy /> */}
       <Problem />
       <Features />
       <Regulations />

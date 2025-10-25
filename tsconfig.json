@@ -62,7 +62,8 @@
     "components/dashboard/DashboardHeader.jsx",
     "components/dashboard/Aside.jsx",
     "components/client/Cta.jsx",
-    "components/client/AutomatedCorrections.jsx"
+    "components/client/AutomatedCorrections.jsx",
+    "next.config.js"
   ],
   "exclude": ["node_modules"]
 }

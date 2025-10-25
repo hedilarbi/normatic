@@ -1,22 +1,9 @@
 // app/api/scans/start/route.ts
 import { NextResponse } from "next/server";
 import admin from "@/lib/firebaseAdmin";
-function normalizeUrl(raw) {
-  try {
-    const u = new URL(raw);
-    u.hash = "";
-    return u.toString().replace(/\/+$/, "");
-  } catch {
-    // si l’utilisateur entre "example.com", tenter d’ajouter https://
-    try {
-      const u2 = new URL(`https://${raw}`);
-      u2.hash = "";
-      return u2.toString().replace(/\/+$/, "");
-    } catch {
-      return null;
-    }
-  }
-}
+import { normalizeUrl } from "../../../../utils/normalizeUrl";
+import { launchScanWebhook } from "../../../../services/webhook.services";
+import { generateUUID } from "../../../../utils/generateUUID";
 
 export async function POST(req) {
   const body = await req.json().catch(() => ({}));
@@ -36,78 +23,80 @@ export async function POST(req) {
     );
   }
 
+  let legalUrl = "";
+  let rgpdUrl = "";
+  let cgvUrl = "";
+
+  if (legal.mentions) {
+    legalUrl = normalizeUrl(legal.mentions);
+    if (!legalUrl) {
+      return NextResponse.json(
+        { ok: false, error: "URL des mentions légales invalide." },
+        { status: 400 }
+      );
+    }
+  }
+
+  if (legal.privacy) {
+    rgpdUrl = normalizeUrl(legal.privacy);
+    if (!rgpdUrl) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "URL de la politique de confidentialité invalide.",
+        },
+        { status: 400 }
+      );
+    }
+  }
+
+  if (legal.cgv) {
+    cgvUrl = normalizeUrl(legal.cgv);
+    if (!cgvUrl) {
+      return NextResponse.json(
+        { ok: false, error: "URL des CGV invalide." },
+        { status: 400 }
+      );
+    }
+  }
+
   const url = normalizeUrl(website);
+
   if (!url)
     return NextResponse.json(
       { ok: false, error: "URL invalide." },
       { status: 400 }
     );
 
+  const uuid = generateUUID();
+  const result = await launchScanWebhook(uuid, cgvUrl, rgpdUrl, legalUrl);
+  if (!result.ok) {
+    return NextResponse.json(
+      { ok: false, error: `Échec du lancement du scan : ${result.error}` },
+      { status: 500 }
+    );
+  }
   // ajouter une tâche dans Firestore
   const db = admin.firestore();
   const scan = await db.collection("scans").add({
     websiteUrl: url,
-    legal,
     email,
     status: "pending",
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
     free_scran: true,
-    rgpdScan: {
-      url: legal.privacy || null,
+    scanUuid: uuid,
+    rgpd: {
+      url: rgpdUrl || null,
     },
-    mlScan: {
-      url: legal.mentions || null,
+    legals: {
+      url: legalUrl || null,
     },
-    cgvScan: {
-      url: legal.cgv || null,
+    cgv: {
+      url: cgvUrl || null,
     },
   });
 
   // notify external webhook (n8n)
-  try {
-    const webhookUrl =
-      "https://n8n.zdigital.fr/webhook/scan-cookies-legals-rgpd-cgv";
-    const webhookKey = "WGnwRnS2t1o0vI1iKWmr0fTp";
-
-    const payload = {
-      uuid: scan.id,
-      notify_url: "https://zdigital.fr/",
-      scanType: "lite",
-      urls: {},
-    };
-
-    if (legal.mentions) payload.urls.legals = legal.mentions;
-    if (legal.privacy) payload.urls.privacy = legal.privacy;
-    if (legal.cgv) payload.urls.cgv = legal.cgv;
-
-    const res = await fetch(webhookUrl, {
-      method: "POST",
-      headers: {
-        Authorization: webhookKey,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-
-    const text = await res.text().catch(() => null);
-    console.log("Webhook response:", res.status, text);
-
-    await db.collection("scans").doc(scan.id).update({
-      webhookSent: res.ok,
-      webhookStatus: res.status,
-      webhookResponse: text,
-      webhookRequestedAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
-  } catch (err) {
-    await db
-      .collection("scans")
-      .doc(scan.id)
-      .update({
-        webhookSent: false,
-        webhookError: String(err),
-        webhookRequestedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
-  }
 
   return NextResponse.json({
     ok: true,

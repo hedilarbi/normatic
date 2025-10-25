@@ -8,8 +8,6 @@ const HighchartsReact = dynamic(() => import("highcharts-react-official"), {
   ssr: false,
 });
 
-type RangeKey = "30j" | "90j" | "1an";
-
 const COLORS = {
   rgpd: "#10B981", // green
   wcag: "#F59E0B", // amber
@@ -40,7 +38,7 @@ const SERIES_12M = {
   DSA: [70, 72, 75, 78, 80, 82, 83, 84, 85, 85, 85, 85],
 };
 
-function sliceForRange(range: RangeKey) {
+function sliceForRange(range) {
   if (range === "1an")
     return { months: ALL_MONTHS_FR, indexStart: 0, indexEnd: 12 };
   if (range === "90j")
@@ -50,63 +48,68 @@ function sliceForRange(range: RangeKey) {
 }
 
 export default function ComplianceChart() {
-  const [range, setRange] = useState<RangeKey>("1an");
+  const [range, setRange] = useState("1an");
 
   const { months, indexStart, indexEnd } = useMemo(
     () => sliceForRange(range),
     [range]
   );
 
-  const lineOptions = useMemo<Highcharts.Options>(() => {
-    const rgpd = SERIES_12M["RGPD"].slice(indexStart, indexEnd);
-    const wcag = SERIES_12M["WCAG"].slice(indexStart, indexEnd);
-    const aact = SERIES_12M["AI Act"].slice(indexStart, indexEnd);
-    const dsa = SERIES_12M["DSA"].slice(indexStart, indexEnd);
+  const lineOptions =
+    useMemo <
+    Highcharts.Options >
+    (() => {
+      const rgpd = SERIES_12M["RGPD"].slice(indexStart, indexEnd);
+      const wcag = SERIES_12M["WCAG"].slice(indexStart, indexEnd);
+      const aact = SERIES_12M["AI Act"].slice(indexStart, indexEnd);
+      const dsa = SERIES_12M["DSA"].slice(indexStart, indexEnd);
 
-    return {
-      chart: { type: "line", height: 320, spacingTop: 10 },
-      title: { text: "" },
-      xAxis: { categories: months },
-      yAxis: {
-        title: { text: "Conformité (%)" },
-        max: 100,
-      },
-      legend: { align: "center", verticalAlign: "bottom" },
-      credits: { enabled: false },
-      tooltip: { shared: true, valueSuffix: "%" },
-      plotOptions: {
-        series: {
-          marker: { enabled: true, radius: 4 },
-          lineWidth: 2,
+      return {
+        chart: { type: "line", height: 320, spacingTop: 10 },
+        title: { text: "" },
+        xAxis: { categories: months },
+        yAxis: {
+          title: { text: "Conformité (%)" },
+          max: 100,
         },
-      },
-      series: [
-        {
-          name: "RGPD",
-          data: rgpd as number[],
-          color: COLORS.rgpd,
-          type: "line",
+        legend: { align: "center", verticalAlign: "bottom" },
+        credits: { enabled: false },
+        tooltip: { shared: true, valueSuffix: "%" },
+        plotOptions: {
+          series: {
+            marker: { enabled: true, radius: 4 },
+            lineWidth: 2,
+          },
         },
-        {
-          name: "WCAG",
-          data: wcag as number[],
-          color: COLORS.wcag,
-          type: "line",
+        series: [
+          {
+            name: "RGPD",
+            data: rgpd,
+            color: COLORS.rgpd,
+            type: "line",
+          },
+          {
+            name: "WCAG",
+            data: wcag,
+            color: COLORS.wcag,
+            type: "line",
+          },
+          {
+            name: "AI Act",
+            data: aact,
+            color: COLORS.aact,
+            type: "line",
+          },
+          { name: "DSA", data: dsa, color: COLORS.dsa, type: "line" },
+        ],
+        accessibility: {
+          enabled: true,
+          description:
+            "Évolution de la conformité sur la période sélectionnée.",
         },
-        {
-          name: "AI Act",
-          data: aact as number[],
-          color: COLORS.aact,
-          type: "line",
-        },
-        { name: "DSA", data: dsa as number[], color: COLORS.dsa, type: "line" },
-      ],
-      accessibility: {
-        enabled: true,
-        description: "Évolution de la conformité sur la période sélectionnée.",
-      },
-    };
-  }, [months, indexStart, indexEnd]);
+      };
+    },
+    [months, indexStart, indexEnd]);
 
   // Fake “violations” split to match your labels (sum ≈ 100)
   const pieData = [
@@ -116,8 +119,10 @@ export default function ComplianceChart() {
     { name: "DSA/DMA", y: 4.3, color: COLORS.dsa },
   ];
 
-  const pieOptions = useMemo<Highcharts.Options>(
-    () => ({
+  const pieOptions =
+    useMemo <
+    Highcharts.Options >
+    (() => ({
       chart: { type: "pie", height: 320 },
       title: { text: "" },
       credits: { enabled: false },
@@ -147,8 +152,7 @@ export default function ComplianceChart() {
         },
       ],
     }),
-    []
-  );
+    []);
 
   return (
     <section id="compliance-charts" className="p-6">
@@ -160,7 +164,7 @@ export default function ComplianceChart() {
               Évolution de la conformité
             </h3>
             <div className="flex items-center gap-2">
-              {(["30j", "90j", "1an"] as RangeKey[]).map((key) => (
+              {["30j", "90j", "1an"].map((key) => (
                 <button
                   key={key}
                   onClick={() => setRange(key)}

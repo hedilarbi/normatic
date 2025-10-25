@@ -35,7 +35,7 @@ const Problem = () => {
               <span className="font-mono text-2xl font-bold text-red-400">
                 €1.6B
               </span>
-              <p className="font-text text-sm text-red-300">
+              <p className="font-text text-sm text-red-400">
                 d&apos;amendes RGPD en 2023
               </p>
             </div>
@@ -53,7 +53,7 @@ const Problem = () => {
               5 réglementations majeures à respecter simultanément, avec des
               mises à jour constantes et des exigences techniques complexes.
             </p>
-            <div className="space-y-2">
+            <div className="space-y-2 bg-primary-orange/10 rounded-lg p-4">
               <div className="flex items-center justify-between text-sm">
                 <span className="font-text text-gray-600">RGPD</span>
                 <span className="font-mono text-primary-orange">Active</span>
@@ -85,7 +85,7 @@ const Problem = () => {
               <span className="font-mono text-2xl font-bold text-primary-purple">
                 73%
               </span>
-              <p className="font-text text-sm text-purple-300">
+              <p className="font-text text-sm text-primary-purple">
                 des PME non-conformes
               </p>
             </div>
