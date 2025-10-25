@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+export const dynamic = "force-dynamic"; // Prevent prerendering
+export const revalidate = 0;
 
-import { useRouter } from "next/navigation";
+import React, { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 import {
@@ -33,7 +35,7 @@ import countries from "i18n-iso-countries";
 import frLocale from "i18n-iso-countries/langs/fr.json";
 import { updateScanWithUserId } from "../../../services/scans.services";
 import { createUserDocument } from "../../../services/users.services";
-import { useSearchParams } from "next/navigation";
+
 countries.registerLocale(frLocale);
 
 // Remplacer le préfixe +code actuel par celui du pays choisi
@@ -62,10 +64,33 @@ function validateAddress(a) {
   return null;
 }
 
+/** Outer component: adds Suspense boundary */
 export default function OnboardingPage() {
-  const searchParams = useSearchParams();
+  return (
+    <Suspense
+      fallback={
+        <section className="pt-28 pb-16 bg-gradient-to-br from-gray-50 to-white">
+          <div className="max-w-5xl mx-auto px-6 lg:px-8">
+            <div className="bg-white rounded-2xl shadow-2xl p-8 border border-gray-100">
+              <div className="text-center py-16">
+                <div className="w-10 h-10 mx-auto rounded-full border-2 border-gray-200 animate-spin" />
+                <p className="mt-4 text-gray-600">Chargement…</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      }
+    >
+      <OnboardingInner />
+    </Suspense>
+  );
+}
 
-  const scanId = searchParams.get("scanId");
+/** Inner component: safe to call useSearchParams() here */
+function OnboardingInner({ params }) {
+  const searchParams = useSearchParams();
+  const scanId = searchParams?.get("scanId") || null;
+
   const router = useRouter();
 
   // Steps: 0=Auth, 1=Infos, 2=Plan, 3=Done
@@ -110,8 +135,6 @@ export default function OnboardingPage() {
   // Step 2 – Plan
   const [plan, setPlan] = useState("free");
   const [error, setError] = useState(null);
-
-  // Si l’utilisateur est déjà connecté, on saute la step 0
 
   // Auth (Step 0)
   const oauthSignIn = async (provider) => {
@@ -237,7 +260,9 @@ export default function OnboardingPage() {
         plan: plan,
       });
 
-      await updateScanWithUserId(scanId, docId);
+      if (scanId) {
+        await updateScanWithUserId(scanId, docId);
+      }
       setStep(3);
 
       setTimeout(() => {
