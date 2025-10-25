@@ -31,8 +31,8 @@ import {
 
 import countries from "i18n-iso-countries";
 import frLocale from "i18n-iso-countries/langs/fr.json";
-import { updateScanWithUserId } from "../../../services/scans.services";
-import { createUserDocument } from "../../../services/users.services";
+import { updateScanWithUserId } from "@/services/scans.services";
+import { createUserDocument } from "@/services/users.services";
 import { useSearchParams } from "next/navigation";
 countries.registerLocale(frLocale);
 
