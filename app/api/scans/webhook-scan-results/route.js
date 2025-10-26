@@ -165,10 +165,6 @@ export async function POST(req) {
     completedAt: admin.firestore.FieldValue.serverTimestamp(),
   });
 
-  // Prepare the response immediately
-  const response = NextResponse.json({ ok: true });
-
-  // Fire-and-forget email AFTER preparing the response:
   try {
     const scanData = scanDoc.data() || {};
     const recipient =
@@ -199,5 +195,8 @@ export async function POST(req) {
     // Do not affect the HTTP response
   }
 
+  // Prepare the response immediately
+  const response = NextResponse.json({ ok: true });
   return response;
+  // Fire-and-forget email AFTER preparing the response:
 }
