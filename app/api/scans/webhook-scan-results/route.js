@@ -115,7 +115,7 @@ export async function POST(req) {
   const scansQuery = await admin
     .firestore()
     .collection("scans")
-    .where("uuid", "==", body.uuid)
+    .where("scanUuid", "==", body.uuid)
     .limit(1)
     .get();
 
