@@ -97,13 +97,13 @@ async function sendScanResultsEmail({ to, website, uuid, results }) {
     subject: `Résultats du scan – ${website || "Projet"} (${uuid})`,
     html,
   };
-
+  console.log("[scan-email] sending to:", to);
   await transporter.sendMail(mailOptions);
 }
 
 export async function POST(req) {
   const body = await req.json().catch(() => ({}));
-  console.log("Received webhook scan results:", body);
+
   if (!body.uuid) {
     return NextResponse.json(
       { ok: false, error: "UUID du scan manquant." },
@@ -196,7 +196,7 @@ export async function POST(req) {
   }
 
   // Prepare the response immediately
-  const response = NextResponse.json({ ok: true });
-  return response;
+  NextResponse.json({ ok: true });
+
   // Fire-and-forget email AFTER preparing the response:
 }
