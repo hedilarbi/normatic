@@ -103,7 +103,7 @@ async function sendScanResultsEmail({ to, website, uuid, results }) {
 
 export async function POST(req) {
   const body = await req.json().catch(() => ({}));
-
+  console.log("Received webhook scan results:", body);
   if (!body.uuid) {
     return NextResponse.json(
       { ok: false, error: "UUID du scan manquant." },
@@ -134,25 +134,25 @@ export async function POST(req) {
     {
       tokens: results.tokens || 0,
       rgpd: {
-        result: results.rgpd?.result || "error",
-        conform: results.rgpd?.conform || false,
+        result: results.rgpd?.result || null,
+        conform: results.rgpd?.conform || null,
         errors: results.rgpd?.errors || [],
         tokens: results.rgpd?.tokens || 0,
       },
       legals: {
         result: results.legals?.result || "error",
-        conform: results.legals?.conform || false,
+        conform: results.legals?.conform || null,
         errors: results.legals?.errors || [],
       },
       cookies: {
-        result: results.cookies?.result || "error",
-        conform: results.cookies?.conform || false,
+        result: results.cookies?.result || null,
+        conform: results.cookies?.conform || null,
         errors: results.cookies?.errors || [],
         tokens: results.cookies?.tokens || 0,
       },
       cgv: {
-        result: results.cgv?.result || "error",
-        conform: results.cgv?.conform || false,
+        result: results.cgv?.result || null,
+        conform: results.cgv?.conform || null,
         errors: results.cgv?.errors || [],
         tokens: results.cgv?.tokens || 0,
       },
