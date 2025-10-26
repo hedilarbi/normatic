@@ -17,6 +17,10 @@ export const launchScanWebhook = async (uuid, cgvUrl, rgpdUrl, legalUrl) => {
     if (rgpdUrl) payload.urls.privacy = rgpdUrl;
     if (cgvUrl) payload.urls.cgv = cgvUrl;
 
+    console.log("Launching webhook with payload:", payload);
+    console.log("Webhook URL:", webhookUrl);
+    console.log("Webhook Key:", webhookKey);
+
     const res = await fetch(webhookUrl, {
       method: "POST",
       headers: {
