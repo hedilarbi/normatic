@@ -104,69 +104,68 @@ async function sendScanResultsEmail({ to, website, uuid, results }) {
 
 export async function POST(req) {
   const body = await req.json().catch(() => ({}));
-
-  if (!body.uuid) {
-    return NextResponse.json(
-      { ok: false, error: "UUID du scan manquant." },
-      { status: 400 }
-    );
-  }
-  const results = body;
-
-  const scansQuery = await admin
-    .firestore()
-    .collection("scans")
-    .where("scanUuid", "==", body.uuid)
-    .limit(1)
-    .get();
-
-  if (scansQuery.empty) {
-    return NextResponse.json(
-      { ok: false, error: "Scan introuvable." },
-      { status: 404 }
-    );
-  }
-
-  const scanDoc = scansQuery.docs[0];
-  const scanRef = scanDoc.ref;
-
-  // Persist results with sensible defaults
-  await scanRef.set(
-    {
-      tokens: results.tokens || 0,
-      rgpd: {
-        result: results.rgpd?.result || null,
-        conform: results.rgpd?.conform || null,
-        errors: results.rgpd?.errors || [],
-        tokens: results.rgpd?.tokens || 0,
-      },
-      legals: {
-        result: results.legals?.result || "error",
-        conform: results.legals?.conform || null,
-        errors: results.legals?.errors || [],
-      },
-      cookies: {
-        result: results.cookies?.result || null,
-        conform: results.cookies?.conform || null,
-        errors: results.cookies?.errors || [],
-        tokens: results.cookies?.tokens || 0,
-      },
-      cgv: {
-        result: results.cgv?.result || null,
-        conform: results.cgv?.conform || null,
-        errors: results.cgv?.errors || [],
-        tokens: results.cgv?.tokens || 0,
-      },
-    },
-    { merge: true }
-  );
-
-  await scanRef.update({
-    status: "completed",
-    completedAt: admin.firestore.FieldValue.serverTimestamp(),
-  });
-
   try {
+    if (!body.uuid) {
+      return NextResponse.json(
+        { ok: false, error: "UUID du scan manquant." },
+        { status: 400 }
+      );
+    }
+    const results = body;
+
+    const scansQuery = await admin
+      .firestore()
+      .collection("scans")
+      .where("scanUuid", "==", body.uuid)
+      .limit(1)
+      .get();
+
+    if (scansQuery.empty) {
+      return NextResponse.json(
+        { ok: false, error: "Scan introuvable." },
+        { status: 404 }
+      );
+    }
+
+    const scanDoc = scansQuery.docs[0];
+    const scanRef = scanDoc.ref;
+
+    // Persist results with sensible defaults
+    await scanRef.set(
+      {
+        tokens: results.tokens || 0,
+        rgpd: {
+          result: results.rgpd?.result || null,
+          conform: results.rgpd?.conform || null,
+          errors: results.rgpd?.errors || [],
+          tokens: results.rgpd?.tokens || 0,
+        },
+        legals: {
+          result: results.legals?.result || "error",
+          conform: results.legals?.conform || null,
+          errors: results.legals?.errors || [],
+        },
+        cookies: {
+          result: results.cookies?.result || null,
+          conform: results.cookies?.conform || null,
+          errors: results.cookies?.errors || [],
+          tokens: results.cookies?.tokens || 0,
+        },
+        cgv: {
+          result: results.cgv?.result || null,
+          conform: results.cgv?.conform || null,
+          errors: results.cgv?.errors || [],
+          tokens: results.cgv?.tokens || 0,
+        },
+      },
+      { merge: true }
+    );
+
+    await scanRef.update({
+      status: "completed",
+      completedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
     const scanData = scanDoc.data() || {};
     const recipient =
       scanData.email ||
@@ -187,13 +186,15 @@ export async function POST(req) {
         cgv: results.cgv || {},
       },
     });
-  } catch (err) {
-    console.error("[scan-email] scheduling failed:", err);
-    // Do not affect the HTTP response
+
+    // Prepare the response immediately
+    NextResponse.json({ ok: true });
+  } catch (error) {
+    console.error("[scan-email] error:", error);
+    return NextResponse.json(
+      { ok: false, error: "Erreur interne du serveur." },
+      { status: 500 }
+    );
   }
-
-  // Prepare the response immediately
-  NextResponse.json({ ok: true });
-
   // Fire-and-forget email AFTER preparing the response:
 }
