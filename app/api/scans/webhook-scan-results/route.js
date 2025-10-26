@@ -98,7 +98,8 @@ async function sendScanResultsEmail({ to, website, uuid, results }) {
     html,
   };
   console.log("[scan-email] sending to:", to);
-  await transporter.sendMail(mailOptions);
+  const response = await transporter.sendMail(mailOptions);
+  console.log("[scan-email] sent:", response.messageId);
 }
 
 export async function POST(req) {
@@ -174,22 +175,18 @@ export async function POST(req) {
       process.env.SMTP_FROM; // final fallback to avoid empty 'to'
 
     // Slight delay to yield back control to the response
-    setTimeout(() => {
-      void sendScanResultsEmail({
-        to: recipient,
-        website: scanData.website || results.website,
-        uuid: body.uuid,
-        results: {
-          tokens: results.tokens || 0,
-          rgpd: results.rgpd || {},
-          legals: results.legals || {},
-          cookies: results.cookies || {},
-          cgv: results.cgv || {},
-        },
-      }).catch((err) => {
-        console.error("[scan-email] send failed:", err);
-      });
-    }, 0);
+    sendScanResultsEmail({
+      to: recipient,
+      website: scanData.website || results.website,
+      uuid: body.uuid,
+      results: {
+        tokens: results.tokens || 0,
+        rgpd: results.rgpd || {},
+        legals: results.legals || {},
+        cookies: results.cookies || {},
+        cgv: results.cgv || {},
+      },
+    });
   } catch (err) {
     console.error("[scan-email] scheduling failed:", err);
     // Do not affect the HTTP response
