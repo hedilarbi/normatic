@@ -23,73 +23,18 @@ function buildTransporter() {
   });
 }
 
-function renderResultsHTML({ website, uuid, results }) {
-  const safe = (v) => (v === undefined || v === null ? "" : String(v));
-
-  const sections = [
-    { key: "rgpd", label: "RGPD" },
-    { key: "legals", label: "Mentions légales" },
-    { key: "cookies", label: "Cookies" },
-    { key: "cgv", label: "CGV" },
-  ];
-
-  const rows = sections
-    .map(({ key, label }) => {
-      const s = results[key] || {};
-      const result = safe(s.result || "error");
-      const conform = s.conform ? "✅ Oui" : "❌ Non";
-      const tokens = safe(s.tokens ?? "");
-      const errors = Array.isArray(s.errors) ? s.errors : [];
-      const errList =
-        errors.length > 0
-          ? `<ul style="margin:6px 0 0 18px">${errors
-              .map((e) => `<li>${safe(e)}</li>`)
-              .join("")}</ul>`
-          : "<em>Aucune erreur listée</em>";
-
-      return `
-        <tr>
-          <td style="padding:10px;border:1px solid #e5e7eb">${label}</td>
-          <td style="padding:10px;border:1px solid #e5e7eb;text-transform:capitalize">${result}</td>
-          <td style="padding:10px;border:1px solid #e5e7eb">${conform}</td>
-          <td style="padding:10px;border:1px solid #e5e7eb">${tokens}</td>
-          <td style="padding:10px;border:1px solid #e5e7eb">${errList}</td>
-        </tr>
-      `;
-    })
-    .join("");
-
-  return `
-  <div style="font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; color:#111827">
-    <h2 style="margin:0 0 10px">Résultats de Scan</h2>
-    <p style="margin:0 0 16px">
-      <strong>Site :</strong> ${safe(website || "—")}<br/>
-      <strong>UUID :</strong> ${safe(uuid)}
-    </p>
-    <table style="border-collapse:collapse;border:1px solid #e5e7eb;width:100%;max-width:800px">
-      <thead>
-        <tr style="background:#f9fafb">
-          <th style="padding:10px;border:1px solid #e5e7eb;text-align:left">Section</th>
-          <th style="padding:10px;border:1px solid #e5e7eb;text-align:left">Résultat</th>
-          <th style="padding:10px;border:1px solid #e5e7eb;text-align:left">Conforme</th>
-          <th style="padding:10px;border:1px solid #e5e7eb;text-align:left">Tokens</th>
-          <th style="padding:10px;border:1px solid #e5e7eb;text-align:left">Erreurs</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${rows}
-      </tbody>
-    </table>
-    <p style="margin-top:16px"><strong>Tokens total :</strong> ${safe(
-      results.tokens ?? 0
-    )}</p>
-  </div>`;
-}
-
-async function sendScanResultsEmail({ to, website, uuid, results }) {
+async function sendScanResultsEmail({ to, website, uuid }) {
   const transporter = buildTransporter();
 
-  const html = renderResultsHTML({ website, uuid, results });
+  html = `
+    <h1>Résultats du scan</h1>
+    <p>Bonjour,</p>
+    <p>Votre scan pour le site <strong>${
+      website || "Projet"
+    }</strong> (UUID: <code>${uuid}</code>) est terminé.</p>
+    <p>Veuillez vous connecter à votre tableau de bord pour consulter les résultats détaillés.</p>
+    <p>Cordialement,<br/>L'équipe</p>
+  `;
 
   const mailOptions = {
     from: process.env.SMTP_FROM,
@@ -178,13 +123,6 @@ export async function POST(req) {
       to: recipient,
       website: scanData.website || results.website,
       uuid: body.uuid,
-      results: {
-        tokens: results.tokens || 0,
-        rgpd: results.rgpd || {},
-        legals: results.legals || {},
-        cookies: results.cookies || {},
-        cgv: results.cgv || {},
-      },
     });
 
     // Prepare the response immediately
