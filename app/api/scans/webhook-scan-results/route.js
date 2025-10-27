@@ -26,7 +26,7 @@ function buildTransporter() {
 async function sendScanResultsEmail({ to, website, uuid }) {
   const transporter = buildTransporter();
 
-  html = `
+  const html = `
     <h1>Résultats du scan</h1>
     <p>Bonjour,</p>
     <p>Votre scan pour le site <strong>${
