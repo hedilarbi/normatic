@@ -119,12 +119,12 @@ export async function POST(req) {
       process.env.SMTP_FROM; // final fallback to avoid empty 'to'
 
     // Slight delay to yield back control to the response
-    sendScanResultsEmail({
+    await sendScanResultsEmail({
       to: recipient,
       website: scanData.website || results.website,
       uuid: body.uuid,
     });
-
+    console.log("[scan-email] triggered email to:", recipient);
     // Prepare the response immediately
     NextResponse.json({ ok: true });
   } catch (error) {
