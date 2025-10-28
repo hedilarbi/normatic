@@ -23,23 +23,68 @@ function buildTransporter() {
   });
 }
 
-async function sendScanResultsEmail({ to, website, uuid }) {
+async function sendScanResultsEmail({ to, website, results }) {
   const transporter = buildTransporter();
 
-  const html = `
+  let html = `
     <h1>Résultats du scan</h1>
     <p>Bonjour,</p>
-    <p>Votre scan pour le site <strong>${
-      website || "Projet"
-    }</strong> (UUID: <code>${uuid}</code>) est terminé.</p>
-    <p>Veuillez vous connecter à votre tableau de bord pour consulter les résultats détaillés.</p>
-    <p>Cordialement,<br/>L'équipe</p>
+    <p>Votre scan pour le site <strong>${website || "Projet"}</strong> .</p>
+   
+   
   `;
+
+  if (results.rgpd.result === "success") {
+    html += `<h2>Conformité RGPD</h2>`;
+    if (results.rgpd.conform) {
+      html += `<p>Le site est conforme au RGPD.</p>`;
+    } else {
+      html += `<p>Le site n'est pas conforme au RGPD.</p>`;
+      results.rgpd.errors.forEach((error) => {
+        html += `<li>${error}</li>`;
+      });
+    }
+  }
+  if (results.legals.result === "success") {
+    html += `<h2>Conformité Mentions légales</h2>`;
+    if (results.legals.conform) {
+      html += `<p>Le site est conforme aux Mentions légales.</p>`;
+    } else {
+      html += `<p>Le site n'est pas conforme aux Mentions légales.</p>`;
+      results.legals.errors.forEach((error) => {
+        html += `<li>${error}</li>`;
+      });
+    }
+  }
+  if (results.cgv.result === "success") {
+    html += `<h2>Conformité CGV</h2>`;
+    if (results.cgv.conform) {
+      html += `<p>Le site est conforme aux CGV.</p>`;
+    } else {
+      html += `<p>Le site n'est pas conforme aux CGV.</p>`;
+      results.cgv.errors.forEach((error) => {
+        html += `<li>${error}</li>`;
+      });
+    }
+  }
+  if (results.cookies.result === "success") {
+    html += `<h2>Conformité Cookies</h2>`;
+    if (results.cookies.conform) {
+      html += `<p>Le site est conforme aux règles sur les Cookies.</p>`;
+    } else {
+      html += `<p>Le site n'est pas conforme aux règles sur les Cookies.</p>`;
+      results.cookies.errors.forEach((error) => {
+        html += `<li>${error}</li>`;
+      });
+    }
+  }
+
+  html += ` <p>Veuillez vous connecter à votre tableau de bord pour consulter les résultats détaillés.</p>`;
 
   const mailOptions = {
     from: process.env.SMTP_FROM,
     to, // prefer the scan's email; fallback handled by caller
-    subject: `Résultats du scan – ${website || "Projet"} (${uuid})`,
+    subject: `Résultats du scan – ${website || "Projet"}`,
     html,
   };
   console.log("[scan-email] sending to:", to);
@@ -122,7 +167,8 @@ export async function POST(req) {
     await sendScanResultsEmail({
       to: recipient,
       website: scanData.website || results.website,
-      uuid: body.uuid,
+
+      results,
     });
     console.log("[scan-email] triggered email to:", recipient);
     // Prepare the response immediately

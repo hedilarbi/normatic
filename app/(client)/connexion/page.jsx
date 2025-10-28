@@ -2,29 +2,44 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
+import { auth } from "@/lib/firebase";
 import Link from "next/link";
 import { Github, LogIn } from "lucide-react";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import {
+  GithubAuthProvider,
+  GoogleAuthProvider,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+} from "firebase/auth";
+import { useRouter } from "next/navigation";
 
 export default function ConnexionPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState(null);
-
+  const router = useRouter();
   const oauthSignIn = async (provider) => {
     setErr(null);
     setLoading(true);
     try {
+      let user;
       if (provider === "google") {
         const provider = new GoogleAuthProvider();
-        await signInWithPopup(auth, provider);
+        user = await signInWithPopup(auth, provider);
       } else if (provider === "github") {
         const provider = new GithubAuthProvider();
-        await signInWithPopup(auth, provider);
+        user = await signInWithPopup(auth, provider);
       }
+      const userProfile = await getUserDocument(user.user.email);
+      if (!userProfile) {
+        router.push(
+          `/onboarding?email=${encodeURIComponent(user.user.email)}&step=1`
+        );
+      }
+      router.push("/dashboard");
     } catch (err) {
+      console.error(err);
       setErr("Échec de la connexion. Réessaie.");
     } finally {
       setLoading(false);
@@ -35,14 +50,9 @@ export default function ConnexionPage() {
     setErr(null);
     setLoading(true);
     try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      const user = userCredential.user;
-      await sendEmailVerification(user);
-      setStep(1);
+      await signInWithEmailAndPassword(auth, email, password);
+
+      router.push("/dashboard");
     } catch (err) {
       setErr("Échec de l'inscription. Réessaie.");
     } finally {

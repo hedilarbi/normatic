@@ -62,19 +62,24 @@ function validateAddress(a) {
   return null;
 }
 
-export default function OnboardingPage({ params }) {
+export default function OnboardingPage() {
   const searchParams = useSearchParams();
 
   const scanId = searchParams.get("scanId");
+  const stepFromSearch = searchParams.get("step");
+  let emailFromSearch = searchParams.get("email");
+  emailFromSearch = emailFromSearch ? decodeURIComponent(emailFromSearch) : "";
   const router = useRouter();
 
   // Steps: 0=Auth, 1=Infos, 2=Plan, 3=Done
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(
+    stepFromSearch ? parseInt(stepFromSearch, 10) : 0
+  );
 
   // Auth (step 0)
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState(null);
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(emailFromSearch ? emailFromSearch : "");
   const [password, setPassword] = useState("");
 
   // Step 1: infos
