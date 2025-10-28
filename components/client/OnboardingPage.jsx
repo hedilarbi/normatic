@@ -242,11 +242,13 @@ export default function OnboardingPage() {
         plan: plan,
       });
 
-      await updateScanWithUserId(scanId, docId);
+      console.log("User document created with ID:", docId, scanId);
+
+      await updateScanWithUserId(scanId.current, docId);
       setStep(3);
 
       setTimeout(() => {
-        router.push("/dashboard");
+        router.push("/tableau-de-bord");
       }, 3000);
     } catch (err) {
       setError("Échec de l'inscription. Réessaie.");

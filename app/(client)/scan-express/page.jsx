@@ -302,7 +302,7 @@ export default function ScanExpressPage() {
                     résultats dans le tableau de bord.
                   </p>
                   <Link
-                    href={"/onboarding?scanId=" + (scanId.current || "")}
+                    href={"/tableau-de-bord?scanId=" + (scanId.current || "")}
                     className="inline-block mt-3 bg-primary-blue text-white px-5 py-2 rounded-lg font-inter hover:bg-blue-600"
                   >
                     Continuer l’inscription
