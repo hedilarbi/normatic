@@ -25,3 +25,26 @@ export const updateScanWithUserId = async (scanId, userId) => {
     throw error;
   }
 };
+
+export const getUserLatestScans = async (email) => {
+  try {
+    const userScansRef = collection(db, "scans");
+    const q = query(
+      userScansRef,
+      where("email", "==", email),
+      orderBy("createdAt", "desc"),
+      limit(5)
+    );
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      throw new Error("No scans found for user");
+    }
+
+    const latestScan = querySnapshot.docs[0].data();
+    return latestScan;
+  } catch (error) {
+    console.error("Error fetching user's latest scan:", error);
+    throw error;
+  }
+};

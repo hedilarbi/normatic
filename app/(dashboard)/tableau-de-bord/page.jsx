@@ -9,7 +9,7 @@ import React from "react";
 
 const Page = () => {
   return (
-    <>
+    <div className="h-[calc(100vh-64px)] overflow-y-auto">
       <DashboardHero />
       <ComplianceChart />
       <CrititcalIssues />
@@ -17,7 +17,7 @@ const Page = () => {
       <AutomatedCorrections />
       <ComplianceReports />
       <SettingsConfig />
-    </>
+    </div>
   );
 };
 

@@ -63,9 +63,12 @@ const Header = () => {
             >
               Connexion
             </Link>
-            <button className="bg-primary-blue text-white px-6 py-2 rounded-lg font-medium font-inter hover:bg-blue-600 transition-colors">
+            <Link
+              href="/scan-express"
+              className="bg-primary-blue text-white px-6 py-2 rounded-lg font-medium font-inter hover:bg-blue-600 transition-colors"
+            >
               Scan gratuit
-            </button>
+            </Link>
           </div>
         </div>
       </div>

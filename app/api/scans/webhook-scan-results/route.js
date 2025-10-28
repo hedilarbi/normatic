@@ -129,23 +129,28 @@ export async function POST(req) {
           conform: results.rgpd?.conform || null,
           errors: results.rgpd?.errors || [],
           tokens: results.rgpd?.tokens || 0,
+          url: results.rgpd?.url || null,
         },
         legals: {
           result: results.legals?.result || "error",
           conform: results.legals?.conform || null,
           errors: results.legals?.errors || [],
+          tokens: results.legals?.tokens || 0,
+          url: results.legals?.url || null,
         },
         cookies: {
           result: results.cookies?.result || null,
           conform: results.cookies?.conform || null,
           errors: results.cookies?.errors || [],
           tokens: results.cookies?.tokens || 0,
+          url: results.cookies?.url || null,
         },
         cgv: {
           result: results.cgv?.result || null,
           conform: results.cgv?.conform || null,
           errors: results.cgv?.errors || [],
           tokens: results.cgv?.tokens || 0,
+          url: results.cgv?.url || null,
         },
       },
       { merge: true }

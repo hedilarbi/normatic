@@ -1,3 +1,4 @@
+import Link from "next/link";
 import React from "react";
 import {
   FaChartLine,
@@ -11,10 +12,13 @@ import { PiPersonArmsSpreadFill } from "react-icons/pi";
 
 const Aside = () => {
   return (
-    <aside id="sidebar" className="w-72 bg-white border-r border-light-gray">
+    <aside
+      id="sidebar"
+      className="w-72 bg-white border-r border-light-gray h-[calc(100vh-64px)] overflow-y-auto"
+    >
       <div className="p-6">
         <div className="space-y-6">
-          <div className="space-y-3">
+          {/* <div className="space-y-3">
             <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
               Actions rapides
             </h3>
@@ -30,45 +34,72 @@ const Aside = () => {
               </div>
               <span>Exporter rapport</span>
             </button>
-          </div>
+          </div> */}
 
           <div className="space-y-1">
             <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
               Navigation
             </h3>
-            <span className="flex items-center space-x-3 px-3 py-2 rounded-lg bg-primary/10 text-primary cursor-pointer">
+            <Link
+              href="/tableau-de-bord"
+              className="flex items-center space-x-3 px-3 py-2 rounded-lg bg-primary/10 text-primary cursor-pointer"
+            >
               <div className="text-2xl">
                 <FaChartLine />
               </div>
               <span className="font-medium">Vue d&apos;ensemble</span>
-            </span>
-            <span className="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 cursor-pointer">
+            </Link>
+            <Link
+              href="/rgpd"
+              className="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 cursor-pointer"
+            >
               <div className="border border-dotted border-gray-600 rounded-full p-1 text-gray-600">
                 <FaExclamation />
               </div>
               <span>Conformité RGPD</span>
-            </span>
-            <span className="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 cursor-pointer">
+            </Link>
+            <Link
+              href="/legales"
+              className="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 cursor-pointer"
+            >
+              <div className="border border-dotted border-gray-600 rounded-full p-1 text-gray-600">
+                <FaExclamation />
+              </div>
+              <span>Conformité Mentions légales</span>
+            </Link>
+            <Link
+              href="/cgv"
+              className="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 cursor-pointer"
+            >
+              <div className="border border-dotted border-gray-600 rounded-full p-1 text-gray-600">
+                <FaExclamation />
+              </div>
+              <span>Conformité CGV</span>
+            </Link>
+            <Link
+              href="/wcag"
+              className="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 cursor-pointer"
+            >
               <div className="bg-gray-600 rounded-full p-1 text-white">
                 <PiPersonArmsSpreadFill />
               </div>
               <span>Accessibilité WCAG</span>
-            </span>
-            <span className="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 cursor-pointer">
+            </Link>
+            {/* <Link className="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 cursor-pointer">
               <div className="text-2xl">
                 <FaRobot />
               </div>
               <span>AI Act</span>
-            </span>
-            <span className="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 cursor-pointer">
+            </Link>
+            <Link className="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 cursor-pointer">
               <div className="text-2xl">
                 <ImHammer2 />
               </div>
               <span>DSA/DMA</span>
-            </span>
+            </Link> */}
           </div>
 
-          <div className="space-y-3">
+          {/* <div className="space-y-3">
             <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
               Statut réglementaire
             </h3>
@@ -104,9 +135,9 @@ const Aside = () => {
                 <span className="text-xs text-purple">85%</span>
               </div>
             </div>
-          </div>
+          </div> */}
 
-          <div className="space-y-3">
+          {/* <div className="space-y-3">
             <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
               Activité récente
             </h3>
@@ -135,7 +166,7 @@ const Aside = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </aside>

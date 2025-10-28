@@ -133,7 +133,7 @@ const DashboardHero = () => {
             </div>
           </div>
         </div>
-        <div className="bg-gradient-to-r from-warning to-yellow-400 rounded-xl p-6 text-white">
+        {/* <div className="bg-gradient-to-r from-warning to-yellow-400 rounded-xl p-6 text-white">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-yellow-100 text-sm font-medium">
@@ -148,7 +148,7 @@ const DashboardHero = () => {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </section>
   );

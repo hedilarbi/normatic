@@ -83,7 +83,7 @@ export async function POST(req) {
     email,
     status: "pending",
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
-    free_scran: true,
+    type: "free",
     scanUuid: uuid,
     rgpd: {
       url: rgpdUrl || null,

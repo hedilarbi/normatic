@@ -24,6 +24,7 @@ export function AuthProvider({ children }) {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         const user = await getUserDocument(firebaseUser.email);
+
         setUser(user);
 
         // try {

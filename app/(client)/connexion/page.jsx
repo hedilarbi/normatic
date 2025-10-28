@@ -10,8 +10,11 @@ import {
   GoogleAuthProvider,
   signInWithEmailAndPassword,
   signInWithPopup,
+  signOut,
 } from "firebase/auth";
 import { useRouter } from "next/navigation";
+import { getUserDocument } from "@/services/users.services";
+import { sign } from "crypto";
 
 export default function ConnexionPage() {
   const [email, setEmail] = useState("");
@@ -33,11 +36,12 @@ export default function ConnexionPage() {
       }
       const userProfile = await getUserDocument(user.user.email);
       if (!userProfile) {
+        await signOut(auth);
         router.push(
           `/onboarding?email=${encodeURIComponent(user.user.email)}&step=1`
         );
       }
-      router.push("/dashboard");
+      router.push("/tableau-de-bord");
     } catch (err) {
       console.error(err);
       setErr("Échec de la connexion. Réessaie.");
@@ -52,7 +56,7 @@ export default function ConnexionPage() {
     try {
       await signInWithEmailAndPassword(auth, email, password);
 
-      router.push("/dashboard");
+      router.push("/tableau-de-bord");
     } catch (err) {
       setErr("Échec de l'inscription. Réessaie.");
     } finally {
