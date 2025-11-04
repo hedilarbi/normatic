@@ -1,7 +1,7 @@
 // app/connexion/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { auth } from "@/lib/firebase";
 import Link from "next/link";
 import { Github, LogIn } from "lucide-react";
@@ -14,7 +14,6 @@ import {
 } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { getUserDocument } from "@/services/users.services";
-import { sign } from "crypto";
 
 export default function ConnexionPage() {
   const [email, setEmail] = useState("");
@@ -22,28 +21,59 @@ export default function ConnexionPage() {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState(null);
   const router = useRouter();
+
   const oauthSignIn = async (provider) => {
     setErr(null);
     setLoading(true);
     try {
-      let user;
+      let result;
+
       if (provider === "google") {
-        const provider = new GoogleAuthProvider();
-        user = await signInWithPopup(auth, provider);
+        const prov = new GoogleAuthProvider();
+        result = await signInWithPopup(auth, prov);
       } else if (provider === "github") {
-        const provider = new GithubAuthProvider();
-        user = await signInWithPopup(auth, provider);
+        const prov = new GithubAuthProvider();
+        // Example: request user:email scope if you rely on email
+        // prov.addScope("user:email");
+        result = await signInWithPopup(auth, prov);
+      } else {
+        throw new Error("Unknown provider");
       }
-      const userProfile = await getUserDocument(user.user.email);
+
+      // ✅ ID token comes from result.user
+      const idToken = await result.user.getIdToken(true);
+
+      // Create your server session
+      await fetch("/api/session/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ idToken }),
+      });
+
+      // Try to resolve the user's email (GitHub can be null)
+      const resolvedEmail =
+        result.user.email ||
+        (result.user.providerData && result.user.providerData[0]?.email) ||
+        null;
+
+      let userProfile = null;
+      if (resolvedEmail) {
+        userProfile = await getUserDocument(resolvedEmail);
+      }
+
       if (!userProfile) {
         await signOut(auth);
-        router.push(
-          `/onboarding?email=${encodeURIComponent(user.user.email)}&step=1`
-        );
+        const qs = resolvedEmail
+          ? `?email=${encodeURIComponent(resolvedEmail)}&step=1`
+          : `?step=1`;
+        router.push(`/onboarding${qs}`);
+        return;
       }
-      router.push("/tableau-de-bord");
-    } catch (err) {
-      console.error(err);
+
+      router.replace("/dashboard");
+    } catch (e) {
+      console.error(e);
       setErr("Échec de la connexion. Réessaie.");
     } finally {
       setLoading(false);
@@ -54,10 +84,19 @@ export default function ConnexionPage() {
     setErr(null);
     setLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const result = await signInWithEmailAndPassword(auth, email, password);
+      const idToken = await result.user.getIdToken(true);
 
-      router.push("/tableau-de-bord");
-    } catch (err) {
+      await fetch("/api/session/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ idToken }),
+      });
+
+      router.replace("/dashboard");
+    } catch (e) {
+      console.error(e);
       setErr("Échec de l'inscription. Réessaie.");
     } finally {
       setLoading(false);
@@ -117,12 +156,14 @@ export default function ConnexionPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <button
               onClick={() => oauthSignIn("google")}
+              disabled={loading}
               className="w-full text-black rounded-lg border border-light-gray px-4 py-2 text-sm font-medium hover:bg-gray-50"
             >
               Continuer avec Google
             </button>
             <button
               onClick={() => oauthSignIn("github")}
+              disabled={loading}
               className="w-full rounded-lg border border-light-gray px-4 py-2 text-sm font-medium hover:bg-gray-50"
             >
               <span className="inline-flex items-center gap-2 text-black">

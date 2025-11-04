@@ -102,6 +102,7 @@ export async function POST(req) {
       );
     }
     const results = body;
+    console.log(body);
 
     const scansQuery = await admin
       .firestore()
@@ -132,7 +133,7 @@ export async function POST(req) {
           url: results.rgpd?.url || null,
         },
         legals: {
-          result: results.legals?.result || "error",
+          result: results.legals?.result || null,
           conform: results.legals?.conform || null,
           errors: results.legals?.errors || [],
           tokens: results.legals?.tokens || 0,

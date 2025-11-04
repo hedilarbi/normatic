@@ -9,14 +9,14 @@ import React from "react";
 
 const Page = () => {
   return (
-    <div className="h-[calc(100vh-64px)] overflow-y-auto">
+    <div className="">
       <DashboardHero />
       <ComplianceChart />
-      <CrititcalIssues />
+      {/* <CrititcalIssues /> */}
       <ScanMonitoring />
-      <AutomatedCorrections />
+      {/* <AutomatedCorrections /> */}
       <ComplianceReports />
-      <SettingsConfig />
+      {/* <SettingsConfig /> */}
     </div>
   );
 };

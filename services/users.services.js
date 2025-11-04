@@ -10,7 +10,6 @@ import {
 } from "firebase/firestore";
 
 export const createUserDocument = async (userData) => {
-  console.log("Creating user document with data:", userData);
   try {
     const usersRef = collection(db, "users");
     const emailQuery = query(usersRef, where("email", "==", userData.email));
@@ -24,7 +23,7 @@ export const createUserDocument = async (userData) => {
       ...userData,
       createdAt: new Date(),
     });
-    console.log("User document created with ID:", docRef.id);
+
     return docRef.id;
   } catch (error) {
     console.error("Error creating user document:", error);

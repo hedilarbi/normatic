@@ -81,7 +81,7 @@ export async function POST(req) {
   const scan = await db.collection("scans").add({
     websiteUrl: url,
     email,
-    status: "pending",
+    status: "in_progress",
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
     type: "free",
     scanUuid: uuid,

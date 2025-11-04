@@ -9,14 +9,14 @@ import {
 } from "react-icons/fa6";
 import { ImHammer2 } from "react-icons/im";
 import { PiPersonArmsSpreadFill } from "react-icons/pi";
-
+import LogoutButton from "./LogoutButton";
 const Aside = () => {
   return (
     <aside
       id="sidebar"
-      className="w-72 bg-white border-r border-light-gray h-[calc(100vh-64px)] overflow-y-auto"
+      className="w-72 bg-white border-r border-light-gray h-[calc(100vh-100px)] overflow-y-auto "
     >
-      <div className="p-6">
+      <div className="p-6 flex flex-col h-full justify-between pb-4">
         <div className="space-y-6">
           {/* <div className="space-y-3">
             <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
@@ -168,6 +168,7 @@ const Aside = () => {
             </div>
           </div> */}
         </div>
+        <LogoutButton />
       </div>
     </aside>
   );

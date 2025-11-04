@@ -8,10 +8,13 @@ import {
   where,
   getDocs,
   query,
+  orderBy,
+  limit,
 } from "firebase/firestore";
 
 export const updateScanWithUserId = async (scanId, userId) => {
   try {
+    console.log("Updating scan", scanId, "with user ID:", userId);
     const scanRef = doc(db, "scans", scanId);
     const scanSnap = await getDoc(scanRef);
 
@@ -26,23 +29,23 @@ export const updateScanWithUserId = async (scanId, userId) => {
   }
 };
 
-export const getUserLatestScans = async (email) => {
+export const getUserLatestScans = async (userId) => {
   try {
     const userScansRef = collection(db, "scans");
     const q = query(
       userScansRef,
-      where("email", "==", email),
+      where("userId", "==", userId),
       orderBy("createdAt", "desc"),
       limit(5)
     );
     const querySnapshot = await getDocs(q);
 
     if (querySnapshot.empty) {
-      throw new Error("No scans found for user");
+      return [];
     }
 
-    const latestScan = querySnapshot.docs[0].data();
-    return latestScan;
+    const latestScans = querySnapshot.docs.map((doc) => doc.data());
+    return latestScans;
   } catch (error) {
     console.error("Error fetching user's latest scan:", error);
     throw error;

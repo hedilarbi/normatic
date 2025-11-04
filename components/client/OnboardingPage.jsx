@@ -66,6 +66,7 @@ export default function OnboardingPage() {
   const searchParams = useSearchParams();
 
   const scanId = searchParams.get("scanId");
+
   const stepFromSearch = searchParams.get("step");
   let emailFromSearch = searchParams.get("email");
   emailFromSearch = emailFromSearch ? decodeURIComponent(emailFromSearch) : "";
@@ -127,13 +128,28 @@ export default function OnboardingPage() {
         const provider = new GoogleAuthProvider();
         const result = await signInWithPopup(auth, provider);
         const gUser = result.user;
+        const idToken = await gUser.getIdToken(/* forceRefresh? */ true);
 
+        await fetch("/api/session/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ idToken }),
+        });
         setStep(1);
         setEmail(gUser.email);
       } else if (provider === "github") {
         const provider = new GithubAuthProvider();
         const result = await signInWithPopup(auth, provider);
         const gUser = result.user;
+        const idToken = await gUser.getIdToken(/* forceRefresh? */ true);
+
+        await fetch("/api/session/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ idToken }),
+        });
 
         setStep(1);
         setEmail(gUser.email);
@@ -155,9 +171,18 @@ export default function OnboardingPage() {
         password
       );
       const user = userCredential.user;
+      const idToken = await user.getIdToken(/* forceRefresh? */ true);
+
+      await fetch("/api/session/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ idToken }),
+      });
       await sendEmailVerification(user);
       setStep(1);
     } catch (err) {
+      console.error(err);
       setAuthError("Échec de l'inscription. Réessaie.");
     } finally {
       setAuthLoading(false);
@@ -242,13 +267,11 @@ export default function OnboardingPage() {
         plan: plan,
       });
 
-      console.log("User document created with ID:", docId, scanId);
-
-      await updateScanWithUserId(scanId.current, docId);
+      await updateScanWithUserId(scanId, docId);
       setStep(3);
 
       setTimeout(() => {
-        router.push("/tableau-de-bord");
+        router.push("/dashboard");
       }, 3000);
     } catch (err) {
       setError("Échec de l'inscription. Réessaie.");
