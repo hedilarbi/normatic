@@ -46,6 +46,7 @@ export async function POST(req) {
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
     type,
     scanUuid: uuid,
+    intensity: intensity || "standard",
     rgpd: {
       url: rgpdUrl || null,
     },

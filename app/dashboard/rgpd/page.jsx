@@ -5,9 +5,6 @@ import { getUserTypedScans } from "@/services/scans.services";
 import HistoriqueDashboardSkeleton from "@/components/skeletons/HistoriqueDashboardSkeleton";
 import Link from "next/link";
 import LaunchScanModal from "@/components/LaunchScanModal";
-
-const POLL_MS = 5000;
-
 const Page = () => {
   const { user, loading } = useAuth();
   const [isLoading, setIsLoading] = React.useState(true);
@@ -15,73 +12,24 @@ const Page = () => {
   const [showLaunchModal, setShowLaunchModal] = React.useState(false);
   const [refresh, setRefresh] = React.useState(0);
 
-  const isFetchingRef = React.useRef(false);
-  const mountedRef = React.useRef(true);
-
   const fetchUserTypedScans = async () => {
-    if (!user?.uid) return;
-    if (isFetchingRef.current) return;
-
     try {
-      isFetchingRef.current = true;
-      // keep existing table while polling; only show skeleton on first load
-      setIsLoading((prev) => (scans.length ? prev : true));
-
       const response = await getUserTypedScans(user.uid, "rgpd");
-      if (!mountedRef.current) return;
-      setScans(response || []);
+
+      setScans(response);
     } catch (error) {
       console.error("Error fetching scans:", error);
     } finally {
-      if (mountedRef.current) {
-        setIsLoading(false);
-        isFetchingRef.current = false;
-      }
+      setIsLoading(false);
     }
   };
 
   React.useEffect(() => {
-    mountedRef.current = true;
-    if (user) fetchUserTypedScans();
-    return () => {
-      mountedRef.current = false;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (user) {
+      setIsLoading(true);
+      fetchUserTypedScans();
+    }
   }, [user, refresh]);
-
-  React.useEffect(() => {
-    if (!user?.uid) return;
-
-    const shouldPoll = () =>
-      !showLaunchModal && document.visibilityState === "visible";
-
-    let intervalId;
-
-    const start = () => {
-      fetchUserTypedScans(); // immediate tick
-      intervalId = window.setInterval(() => {
-        if (shouldPoll()) fetchUserTypedScans();
-      }, POLL_MS);
-    };
-
-    const stop = () => {
-      if (intervalId) window.clearInterval(intervalId);
-      intervalId = undefined;
-    };
-
-    const handleVisibility = () => {
-      stop();
-      if (shouldPoll()) start();
-    };
-
-    start();
-    document.addEventListener("visibilitychange", handleVisibility);
-
-    return () => {
-      stop();
-      document.removeEventListener("visibilitychange", handleVisibility);
-    };
-  }, [user?.uid, showLaunchModal]); // rewire when modal or user changes
 
   if (loading) {
     return (
@@ -92,19 +40,24 @@ const Page = () => {
   }
 
   const renderState = (scan) => {
-    if (scan?.rgpd?.conform === false) return "Non conforme";
-    return "Conforme";
+    if (scan.rgpd.conform === false) {
+      return "Non conforme";
+    } else {
+      return "Conforme";
+    }
   };
 
   const formatDate = (timestamp) => {
     if (!timestamp) return "";
-    let date;
 
+    let date;
+    // Firestore Timestamp
     if (timestamp?.toDate && typeof timestamp.toDate === "function") {
       date = timestamp.toDate();
     } else if (typeof timestamp === "number") {
       date = new Date(timestamp);
     } else if (timestamp?.seconds) {
+      // object with seconds (e.g. REST or other representation)
       date = new Date(timestamp.seconds * 1000);
     } else {
       date = new Date(timestamp);
@@ -169,7 +122,7 @@ const Page = () => {
               {scans.map((scan, idx) => (
                 <tr className="hover:bg-gray-50" key={idx}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-mono">
-                    {scan?.rgpd?.url || "—"}
+                    {scan.rgpd.url}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
@@ -185,7 +138,7 @@ const Page = () => {
                         ? "En cours"
                         : scan.status === "completed"
                         ? "Terminé"
-                        : "Échec"}
+                        : "Échoue"}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
@@ -196,7 +149,7 @@ const Page = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     <Link
-                      href="#"
+                      href={`/dashboard/scans/${scan.scanUuid}`}
                       className="text-primary hover:text-blue-600 mr-3"
                     >
                       Voir rapport

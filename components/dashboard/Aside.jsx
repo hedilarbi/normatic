@@ -59,7 +59,7 @@ const Aside = () => {
               <span>Conformité RGPD</span>
             </Link>
             <Link
-              href="/legales"
+              href="/dashboard/legales"
               className="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 cursor-pointer"
             >
               <div className="border border-dotted border-gray-600 rounded-full p-1 text-gray-600">
@@ -68,7 +68,7 @@ const Aside = () => {
               <span>Conformité Mentions légales</span>
             </Link>
             <Link
-              href="/cgv"
+              href="/dashboard/cgv"
               className="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 cursor-pointer"
             >
               <div className="border border-dotted border-gray-600 rounded-full p-1 text-gray-600">
@@ -76,7 +76,7 @@ const Aside = () => {
               </div>
               <span>Conformité CGV</span>
             </Link>
-            <Link
+            {/* <Link
               href="/wcag"
               className="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 cursor-pointer"
             >
@@ -84,7 +84,7 @@ const Aside = () => {
                 <PiPersonArmsSpreadFill />
               </div>
               <span>Accessibilité WCAG</span>
-            </Link>
+            </Link> */}
             {/* <Link className="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 cursor-pointer">
               <div className="text-2xl">
                 <FaRobot />
