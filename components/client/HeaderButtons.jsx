@@ -12,6 +12,12 @@ const HeaderButtons = () => {
   if (user && !loading) {
     return (
       <div className="flex items-center space-x-4">
+        <Link
+          href="/dashboard"
+          className="text-gray-700 hover:text-primary-blue font-medium font-inter"
+        >
+          Tableau de bord
+        </Link>
         <LogoutButton />
       </div>
     );

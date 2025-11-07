@@ -93,73 +93,88 @@ const Page = () => {
           Lancer un scan Mentions Légales
         </button>
       </div>
-      <div className="bg-white p-6 border-b border-light-gray mt-4">
-        <table className="w-full">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Cible
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Statut
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Violations
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Date
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
 
-          {isLoading ? (
-            <HistoriqueDashboardSkeleton />
-          ) : (
-            <tbody className="divide-y divide-gray-200">
-              {scans.map((scan, idx) => (
-                <tr className="hover:bg-gray-50" key={idx}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-mono">
-                    {scan.rgpd.url}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={` text-xs px-2 py-1 rounded-full ${
-                        scan.status === "in_progress"
-                          ? "bg-warning/20 text-warning"
+      <div className="bg-white p-6 border-b border-light-gray mt-4">
+        {!isLoading && scans.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12">
+            <p className="text-gray-700 mb-4 text-lg">
+              Aucun scan Mentions Légales
+            </p>
+            <button
+              className="bg-primary-blue rounded-md px-6 py-2 text-white"
+              onClick={() => setShowLaunchModal(true)}
+            >
+              Lancer votre premier scan Mentions Légales
+            </button>
+          </div>
+        ) : (
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Cible
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Statut
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Violations
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Date
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+
+            {isLoading ? (
+              <HistoriqueDashboardSkeleton />
+            ) : (
+              <tbody className="divide-y divide-gray-200">
+                {scans.map((scan, idx) => (
+                  <tr className="hover:bg-gray-50" key={idx}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-mono">
+                      {scan.rgpd.url}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span
+                        className={` text-xs px-2 py-1 rounded-full ${
+                          scan.status === "in_progress"
+                            ? "bg-warning/20 text-warning"
+                            : scan.status === "completed"
+                            ? "bg-success/20 text-success"
+                            : "bg-red-500/20 text-red-500"
+                        }`}
+                      >
+                        {scan.status === "in_progress"
+                          ? "En cours"
                           : scan.status === "completed"
-                          ? "bg-success/20 text-success"
-                          : "bg-red-500/20 text-red-500"
-                      }`}
-                    >
-                      {scan.status === "in_progress"
-                        ? "En cours"
-                        : scan.status === "completed"
-                        ? "Terminé"
-                        : "Échoue"}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                    {scan.status === "completed" ? renderState(scan) : "__"}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                    {formatDate(scan.completedAt)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <Link
-                      href={`/dashboard/scans/${scan.scanUuid}`}
-                      className="text-primary hover:text-blue-600 mr-3"
-                    >
-                      Voir rapport
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          )}
-        </table>
+                          ? "Terminé"
+                          : "Échoue"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      {scan.status === "completed" ? renderState(scan) : "__"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      {formatDate(scan.completedAt)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <Link
+                        href={`/dashboard/scans/${scan.scanUuid}`}
+                        className="text-primary hover:text-blue-600 mr-3"
+                      >
+                        Voir rapport
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            )}
+          </table>
+        )}
       </div>
     </>
   );

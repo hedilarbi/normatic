@@ -1,173 +1,99 @@
+"use client";
 import Link from "next/link";
 import React from "react";
-import {
-  FaChartLine,
-  FaDownload,
-  FaExclamation,
-  FaPlay,
-  FaRobot,
-} from "react-icons/fa6";
-import { ImHammer2 } from "react-icons/im";
-import { PiPersonArmsSpreadFill } from "react-icons/pi";
+import { usePathname } from "next/navigation";
+import { FaChartLine, FaExclamation } from "react-icons/fa6";
 import LogoutButton from "./LogoutButton";
+
+const linkBase =
+  "flex items-center space-x-3 px-3 py-2 rounded-lg cursor-pointer transition-colors";
+const inactive = "text-gray-600 hover:bg-gray-100";
+const active = "bg-primary/10 text-primary";
+
 const Aside = () => {
+  const pathname = usePathname();
+
+  const isActive = (href) =>
+    href === "/tableau-de-bord"
+      ? pathname === "/tableau-de-bord"
+      : pathname.startsWith(href);
+
   return (
     <aside
       id="sidebar"
-      className="w-72 bg-white border-r border-light-gray h-[calc(100vh-100px)] overflow-y-auto "
+      className={`w-72 border-r border-light-gray h-[calc(100vh-100px)] overflow-y-auto `}
     >
       <div className="p-6 flex flex-col h-full justify-between pb-4">
         <div className="space-y-6">
-          {/* <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
-              Actions rapides
-            </h3>
-            <button className="w-full bg-primary text-white rounded-lg px-4 py-3 font-medium hover:bg-blue-600 transition-colors flex items-center justify-center space-x-2">
-              <div>
-                <FaPlay />
-              </div>
-              <span>Nouveau scan</span>
-            </button>
-            <button className="w-full bg-gray-100 text-gray-700 rounded-lg px-4 py-2 font-medium hover:bg-gray-200 transition-colors flex items-center justify-center space-x-2">
-              <div>
-                <FaDownload />
-              </div>
-              <span>Exporter rapport</span>
-            </button>
-          </div> */}
-
           <div className="space-y-1">
-            <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
-              Navigation
-            </h3>
             <Link
-              href="/tableau-de-bord"
-              className="flex items-center space-x-3 px-3 py-2 rounded-lg bg-primary/10 text-primary cursor-pointer"
+              href="/dashboard"
+              className={`${linkBase} ${
+                isActive("/dashboard") ? active : inactive
+              }`}
             >
               <div className="text-2xl">
                 <FaChartLine />
               </div>
               <span className="font-medium">Vue d&apos;ensemble</span>
             </Link>
+
             <Link
               href="/dashboard/rgpd"
-              className="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 cursor-pointer"
+              className={`${linkBase} ${
+                isActive("/dashboard/rgpd") ? active : inactive
+              }`}
             >
-              <div className="border border-dotted border-gray-600 rounded-full p-1 text-gray-600">
+              <div
+                className={`border border-dotted rounded-full p-1 ${
+                  isActive("/dashboard/rgpd")
+                    ? "border-current"
+                    : "border-gray-600 text-gray-600"
+                }`}
+              >
                 <FaExclamation />
               </div>
               <span>Conformité RGPD</span>
             </Link>
+
             <Link
               href="/dashboard/legales"
-              className="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 cursor-pointer"
+              className={`${linkBase} ${
+                isActive("/dashboard/legales") ? active : inactive
+              }`}
             >
-              <div className="border border-dotted border-gray-600 rounded-full p-1 text-gray-600">
+              <div
+                className={`border border-dotted rounded-full p-1 ${
+                  isActive("/dashboard/legales")
+                    ? "border-current"
+                    : "border-gray-600 text-gray-600"
+                }`}
+              >
                 <FaExclamation />
               </div>
               <span>Conformité Mentions légales</span>
             </Link>
+
             <Link
               href="/dashboard/cgv"
-              className="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 cursor-pointer"
+              className={`${linkBase} ${
+                isActive("/dashboard/cgv") ? active : inactive
+              }`}
             >
-              <div className="border border-dotted border-gray-600 rounded-full p-1 text-gray-600">
+              <div
+                className={`border border-dotted rounded-full p-1 ${
+                  isActive("/dashboard/cgv")
+                    ? "border-current"
+                    : "border-gray-600 text-gray-600"
+                }`}
+              >
                 <FaExclamation />
               </div>
               <span>Conformité CGV</span>
             </Link>
-            {/* <Link
-              href="/wcag"
-              className="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 cursor-pointer"
-            >
-              <div className="bg-gray-600 rounded-full p-1 text-white">
-                <PiPersonArmsSpreadFill />
-              </div>
-              <span>Accessibilité WCAG</span>
-            </Link> */}
-            {/* <Link className="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 cursor-pointer">
-              <div className="text-2xl">
-                <FaRobot />
-              </div>
-              <span>AI Act</span>
-            </Link>
-            <Link className="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 cursor-pointer">
-              <div className="text-2xl">
-                <ImHammer2 />
-              </div>
-              <span>DSA/DMA</span>
-            </Link> */}
           </div>
-
-          {/* <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
-              Statut réglementaire
-            </h3>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between p-3 bg-success/10 rounded-lg">
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-success rounded-full"></div>
-                  <span className="text-sm font-medium text-success">RGPD</span>
-                </div>
-                <span className="text-xs text-success">92%</span>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-warning/10 rounded-lg">
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-warning rounded-full"></div>
-                  <span className="text-sm font-medium text-warning">WCAG</span>
-                </div>
-                <span className="text-xs text-warning">78%</span>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                  <span className="text-sm font-medium text-red-600">
-                    AI Act
-                  </span>
-                </div>
-                <span className="text-xs text-red-600">45%</span>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-purple/10 rounded-lg">
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-purple rounded-full"></div>
-                  <span className="text-sm font-medium text-purple">DSA</span>
-                </div>
-                <span className="text-xs text-purple">85%</span>
-              </div>
-            </div>
-          </div> */}
-
-          {/* <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
-              Activité récente
-            </h3>
-            <div className="space-y-3">
-              <div className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-success rounded-full mt-2"></div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-gray-900">Scan RGPD terminé</p>
-                  <p className="text-xs text-gray-500">il y a 2h</p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-warning rounded-full mt-2"></div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-gray-900">
-                    3 violations détectées
-                  </p>
-                  <p className="text-xs text-gray-500">il y a 4h</p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-gray-900">Rapport généré</p>
-                  <p className="text-xs text-gray-500">il y a 6h</p>
-                </div>
-              </div>
-            </div>
-          </div> */}
         </div>
+
         <LogoutButton />
       </div>
     </aside>

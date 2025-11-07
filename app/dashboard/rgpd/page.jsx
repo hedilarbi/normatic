@@ -93,31 +93,42 @@ const Page = () => {
           Lancer un scan RGPD
         </button>
       </div>
-      <div className="bg-white p-6 border-b border-light-gray mt-4">
-        <table className="w-full">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Cible
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Statut
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Violations
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Date
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
 
-          {isLoading ? (
-            <HistoriqueDashboardSkeleton />
-          ) : (
+      <div className="bg-white p-6 border-b border-light-gray mt-4">
+        {isLoading ? (
+          <HistoriqueDashboardSkeleton />
+        ) : !Array.isArray(scans) || scans.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12">
+            <p className="text-gray-700 mb-4">Aucun scan RGPD</p>
+            <button
+              onClick={() => setShowLaunchModal(true)}
+              className="bg-primary-blue rounded-md px-6 py-2 text-white"
+            >
+              Lancer votre premier scan RGPD
+            </button>
+          </div>
+        ) : (
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Cible
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Statut
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Violations
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Date
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+
             <tbody className="divide-y divide-gray-200">
               {scans.map((scan, idx) => (
                 <tr className="hover:bg-gray-50" key={idx}>
@@ -158,8 +169,8 @@ const Page = () => {
                 </tr>
               ))}
             </tbody>
-          )}
-        </table>
+          </table>
+        )}
       </div>
     </>
   );

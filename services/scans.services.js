@@ -92,3 +92,24 @@ export const getScanByUUID = async (scanUuid) => {
     throw error;
   }
 };
+
+export const getScansByUser = async (userId) => {
+  try {
+    const scansRef = collection(db, "scans");
+    const q = query(scansRef, where("userId", "==", userId));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      return [];
+    }
+
+    const userScans = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    return userScans;
+  } catch (error) {
+    console.error("Error fetching scans by user ID:", error);
+    throw error;
+  }
+};

@@ -15,7 +15,7 @@ const DashboardHeader = () => {
         <div className="flex items-center space-x-6">
           <div className="flex items-center space-x-3">
             <Link
-              href="/"
+              href="/dashboard"
               className="text-2xl font-bold font-inter text-primary-dark"
             >
               <Image

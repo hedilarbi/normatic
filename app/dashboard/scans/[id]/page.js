@@ -130,7 +130,7 @@ const Page = ({ params }) => {
               ) : currentErrors.length > 0 ? (
                 <div>
                   <h3 className="text-lg font-medium mb-2 text-red-600">
-                    Erreurs rencontrées:
+                    Erreurs rencontrées ({currentErrors.length}) :
                   </h3>
                   <ul className="list-disc list-inside text-red-600">
                     {currentErrors.map((error, index) => (

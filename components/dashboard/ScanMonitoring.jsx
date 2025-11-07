@@ -14,14 +14,16 @@ import {
 import HistoriqueDashboardSkeleton from "@/components/skeletons/HistoriqueDashboardSkeleton";
 import { PiPersonArmsSpreadFill } from "react-icons/pi";
 import { getUserLatestScans } from "@/services/scans.services";
-
+import CreateNewScan from "@/components/CreateNewScan";
 const ScanMonitoring = ({ uid }) => {
   const [scans, setScans] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
+  const [showCreateScanModal, setShowCreateScanModal] = React.useState(false);
+  const [refresh, setRefresh] = React.useState(0);
 
   const fetchLatestScans = async () => {
     if (!uid) return;
-    setIsLoading(true);
+
     try {
       // Prefer a server route like /api/scans/me that reads cookie+uid server-side.
       const data = await getUserLatestScans(uid);
@@ -35,8 +37,9 @@ const ScanMonitoring = ({ uid }) => {
   };
 
   React.useEffect(() => {
+    setIsLoading(true);
     fetchLatestScans();
-  }, [uid]);
+  }, [uid, refresh]);
 
   const renderIcon = (type) => {
     switch (type) {
@@ -143,7 +146,14 @@ const ScanMonitoring = ({ uid }) => {
   };
 
   return (
-    <section id="scan-monitoring" className="p-6">
+    <section id="scan-monitoring" className="p-6 relative">
+      {showCreateScanModal && (
+        <CreateNewScan
+          userId={uid}
+          setIsOpen={setShowCreateScanModal}
+          setRefresh={setRefresh}
+        />
+      )}
       <div className="grid grid-cols-1  gap-6">
         <div className="lg:col-span-2 bg-white rounded-xl border border-light-gray">
           <div className="p-6 border-b border-light-gray">
@@ -152,15 +162,15 @@ const ScanMonitoring = ({ uid }) => {
                 Historique des scans
               </h3>
               <div className="flex items-center gap-4">
-                <Link
-                  href="/dashboard/scans/new"
-                  className="flex items-center space-x-2 px-3 py-1 bg-primary text-white rounded-lg text-sm hover:bg-blue-600 transition-colors"
+                <button
+                  onClick={() => setShowCreateScanModal(true)}
+                  className="flex  cursor-pointer items-center space-x-2 px-3 py-1 bg-primary text-white rounded-lg text-sm hover:bg-blue-600 transition-colors"
                 >
                   <div>
                     <FaPlay />
                   </div>
                   <span>Nouveau scan</span>
-                </Link>
+                </button>
                 <Link
                   href="/dashboard/scans"
                   className="flex items-center space-x-2 px-3 py-1 bg-white border border-primary text-primary rounded-lg text-sm hover:bg-blue-600 hover:text-white transition-colors"
@@ -199,46 +209,65 @@ const ScanMonitoring = ({ uid }) => {
                 <HistoriqueDashboardSkeleton />
               ) : (
                 <tbody className="divide-y divide-gray-200">
-                  {scans.map((scan, idx) => (
-                    <tr className="hover:bg-gray-50" key={idx}>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          {renderIcon(scan.type)}
-                          <span className="text-sm font-medium text-dark">
-                            {scan.type === "free" ? "Scan Gratuit" : scan.type}
+                  {scans.map((scan, idx) => {
+                    const url =
+                      scan.type === "free"
+                        ? scan.websiteUrl
+                        : scan?.[scan.type]?.url;
+                    return (
+                      <tr className="hover:bg-gray-50" key={idx}>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            {renderIcon(scan.type)}
+                            <span className="text-sm font-medium text-dark">
+                              {scan.type === "free"
+                                ? "Scan Gratuit"
+                                : scan.type}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 max-w-52 text-sm text-gray-600 font-mono">
+                          <span
+                            className="block overflow-hidden text-ellipsis whitespace-nowrap"
+                            title={url} // shows full text on hover
+                          >
+                            {url}
                           </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-mono">
-                        {scan.type === "free"
-                          ? scan.websiteUrl
-                          : scan[scan.type].url}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="bg-success/20 text-success text-xs px-2 py-1 rounded-full">
-                          {scan.status === "in_progress"
-                            ? "En cours"
-                            : scan.status === "completed"
-                            ? "Terminé"
-                            : "Échoue"}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                        {renderState(scan)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                        {formatDate(scan.completedAt)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        <Link
-                          href={`/dashboard/scans/${scan.scanUuid}`}
-                          className="text-primary hover:text-blue-600 mr-3"
-                        >
-                          Voir rapport
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span
+                            className={` text-xs px-2 py-1 rounded-full ${
+                              scan.status === "in_progress"
+                                ? "bg-warning/20 text-warning"
+                                : scan.status === "completed"
+                                ? "bg-success/20 text-success"
+                                : "bg-red-500/20 text-red-500"
+                            }`}
+                          >
+                            {scan.status === "in_progress"
+                              ? "En cours"
+                              : scan.status === "completed"
+                              ? "Terminé"
+                              : "Échoue"}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                          {renderState(scan)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                          {formatDate(scan.completedAt)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          <Link
+                            href={`/dashboard/scans/${scan.scanUuid}`}
+                            className="text-primary hover:text-blue-600 mr-3"
+                          >
+                            Voir rapport
+                          </Link>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               )}
             </table>
