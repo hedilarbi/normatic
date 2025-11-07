@@ -231,7 +231,7 @@ const ScanMonitoring = ({ uid }) => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         <Link
-                          href="#"
+                          href={`/dashboard/scans/${scan.scanUuid}`}
                           className="text-primary hover:text-blue-600 mr-3"
                         >
                           Voir rapport
