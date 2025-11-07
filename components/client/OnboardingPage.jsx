@@ -3,24 +3,9 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 
-import {
-  FaBuilding,
-  FaUser,
-  FaCheck,
-  FaArrowRight,
-  FaGithub,
-  FaGoogle,
-} from "react-icons/fa";
-import {
-  createUserWithEmailAndPassword,
-  signInWithPopup,
-  GoogleAuthProvider,
-  sendEmailVerification,
-  GithubAuthProvider,
-} from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { FaBuilding, FaUser, FaCheck, FaArrowRight } from "react-icons/fa";
+
 import "react-international-phone/style.css";
 import { PhoneInput } from "react-international-phone";
 import {
@@ -31,9 +16,10 @@ import {
 
 import countries from "i18n-iso-countries";
 import frLocale from "i18n-iso-countries/langs/fr.json";
-import { updateScanWithUserId } from "@/services/scans.services";
-import { createUserDocument } from "@/services/users.services";
+
+import { updateUserDocument } from "@/services/users.services";
 import { useSearchParams } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 countries.registerLocale(frLocale);
 
 // Remplacer le préfixe +code actuel par celui du pays choisi
@@ -45,46 +31,25 @@ function withDialForCountry(currentValue, iso2) {
   return currentValue.replace(/^\+\d+/, dial);
 }
 
-function composeAddress(a) {
-  const parts = [
-    a.street?.trim(),
-    a.line2?.trim(),
-    [a.postal, a.city].filter(Boolean).join(" ").trim(),
-    a.region?.trim(),
-  ].filter(Boolean);
-  return parts.join(", ");
-}
-
-function validateAddress(a) {
-  if (!a.street?.trim()) return "Rue obligatoire.";
-  if (!a.city?.trim()) return "Ville obligatoire.";
-  if (!a.postal?.trim()) return "Code postal obligatoire.";
-  return null;
-}
-
 export default function OnboardingPage() {
   const searchParams = useSearchParams();
-
-  const scanId = searchParams.get("scanId");
 
   const stepFromSearch = searchParams.get("step");
   let emailFromSearch = searchParams.get("email");
   emailFromSearch = emailFromSearch ? decodeURIComponent(emailFromSearch) : "";
   const router = useRouter();
-
+  const { loading, user, refresh } = useAuth();
   // Steps: 0=Auth, 1=Infos, 2=Plan, 3=Done
   const [step, setStep] = useState(
-    stepFromSearch ? parseInt(stepFromSearch, 10) : 0
+    stepFromSearch ? parseInt(stepFromSearch, 10) : 1
   );
 
   // Auth (step 0)
-  const [authLoading, setAuthLoading] = useState(false);
-  const [authError, setAuthError] = useState(null);
+
   const [email, setEmail] = useState(emailFromSearch ? emailFromSearch : "");
-  const [password, setPassword] = useState("");
 
   // Step 1: infos
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [accountType, setAccountType] = useState("individual");
 
   // Options pays en FR (adresse/facturation)
@@ -116,78 +81,6 @@ export default function OnboardingPage() {
   // Step 2 – Plan
   const [plan, setPlan] = useState("free");
   const [error, setError] = useState(null);
-
-  // Si l’utilisateur est déjà connecté, on saute la step 0
-
-  // Auth (Step 0)
-  const oauthSignIn = async (provider) => {
-    setAuthError(null);
-    setAuthLoading(true);
-    try {
-      if (provider === "google") {
-        const provider = new GoogleAuthProvider();
-        const result = await signInWithPopup(auth, provider);
-        const gUser = result.user;
-        const idToken = await gUser.getIdToken(/* forceRefresh? */ true);
-
-        await fetch("/api/session/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({ idToken }),
-        });
-        setStep(1);
-        setEmail(gUser.email);
-      } else if (provider === "github") {
-        const provider = new GithubAuthProvider();
-        const result = await signInWithPopup(auth, provider);
-        const gUser = result.user;
-        const idToken = await gUser.getIdToken(/* forceRefresh? */ true);
-
-        await fetch("/api/session/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({ idToken }),
-        });
-
-        setStep(1);
-        setEmail(gUser.email);
-      }
-    } catch (err) {
-      setAuthError("Échec de la connexion. Réessaie.");
-    } finally {
-      setAuthLoading(false);
-    }
-  };
-
-  const emailSignUp = async () => {
-    setAuthError(null);
-    setAuthLoading(true);
-    try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      const user = userCredential.user;
-      const idToken = await user.getIdToken(/* forceRefresh? */ true);
-
-      await fetch("/api/session/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ idToken }),
-      });
-      await sendEmailVerification(user);
-      setStep(1);
-    } catch (err) {
-      console.error(err);
-      setAuthError("Échec de l'inscription. Réessaie.");
-    } finally {
-      setAuthLoading(false);
-    }
-  };
 
   // Step 1: Infos
   const saveStep1 = async () => {
@@ -259,15 +152,15 @@ export default function OnboardingPage() {
   // Step 2: Plan
   const savePlan = async () => {
     try {
-      const docId = await createUserDocument({
-        email,
+      await updateUserDocument(user.id, {
         phone,
         accountType,
         ...(accountType === "individual" ? { ...individual } : { ...org }),
         plan: plan,
+        isProfileSetup: true,
       });
+      await refresh();
 
-      await updateScanWithUserId(scanId, docId);
       setStep(3);
 
       setTimeout(() => {
@@ -277,6 +170,12 @@ export default function OnboardingPage() {
       setError("Échec de l'inscription. Réessaie.");
     }
   };
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [step]);
 
   const label = (t) => (
     <span className="text-sm font-inter text-gray-700">{t}</span>
@@ -323,98 +222,6 @@ export default function OnboardingPage() {
         </div>
 
         <div className="bg-white rounded-2xl shadow-2xl p-8 border border-gray-100">
-          {/* STEP 0: Auth */}
-          {step === 0 && (
-            <div className="max-w-xl mx-auto space-y-6">
-              <h1 className="text-2xl font-bold font-inter text-primary-dark text-center">
-                Crée ton compte ou connecte-toi
-              </h1>
-
-              <div className="grid sm:grid-cols-2 gap-3 text-black">
-                <button
-                  onClick={() => oauthSignIn("google")}
-                  disabled={authLoading}
-                  className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border hover:bg-gray-50"
-                >
-                  <FaGoogle />
-                  Continuer avec Google
-                </button>
-                <button
-                  onClick={() => oauthSignIn("github")}
-                  disabled={authLoading}
-                  className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border hover:bg-gray-50"
-                >
-                  <FaGithub />
-                  Continuer avec GitHub
-                </button>
-              </div>
-
-              <div className="relative my-2">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-white px-2 text-gray-500">ou</span>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  {label("Email")}
-                  <input
-                    type="email"
-                    className="w-full mt-2 border rounded-xl px-4 py-3"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="vous@exemple.com"
-                  />
-                </div>
-                <div>
-                  {label("Mot de passe")}
-                  <input
-                    type="password"
-                    className="w-full mt-2 border rounded-xl px-4 py-3"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                  />
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => emailSignUp()}
-                    disabled={authLoading}
-                    className="bg-primary-blue text-white px-5 py-3 rounded-xl font-semibold hover:bg-blue-600 transition disabled:opacity-60"
-                  >
-                    Créer un compte
-                  </button>
-                </div>
-              </div>
-
-              {authError && (
-                <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-800">
-                  {authError}
-                </div>
-              )}
-
-              <p className="text-xs text-gray-500">
-                En continuant, tu acceptes nos{" "}
-                <Link href="/mentions-legales" className="underline">
-                  mentions légales
-                </Link>{" "}
-                et notre{" "}
-                <Link
-                  href="/politique-de-confidentialite"
-                  className="underline"
-                >
-                  politique de confidentialité
-                </Link>
-                .
-              </p>
-            </div>
-          )}
-
-          {/* STEP 1: Infos */}
           {step === 1 && (
             <div className="space-y-8">
               <div className="grid sm:grid-cols-2 gap-4">

@@ -293,7 +293,10 @@ export default function ScanExpressPage() {
             </div>
 
             {done && (
-              <div className="p-4 rounded-xl bg-green-50 border border-green-200 text-green-800 flex items-start gap-3">
+              <div
+                className="p-4 rounded-xl bg-green-50 border border-green-200 text-green-800 flex items-start gap-3"
+                id="scan-success"
+              >
                 <FaCheckCircle className="mt-1" />
                 <div>
                   <p className="font-semibold">{done}</p>
@@ -302,7 +305,7 @@ export default function ScanExpressPage() {
                     résultats dans le tableau de bord.
                   </p>
                   <Link
-                    href={"/onboarding?scanId=" + (scanId.current || "")}
+                    href={"/inscription?scanId=" + (scanId.current || "")}
                     className="inline-block mt-3 bg-primary-blue text-white px-5 py-2 rounded-lg font-inter hover:bg-blue-600"
                   >
                     Continuer l’inscription

@@ -15,19 +15,17 @@ import HistoriqueDashboardSkeleton from "@/components/skeletons/HistoriqueDashbo
 import { PiPersonArmsSpreadFill } from "react-icons/pi";
 import { getUserLatestScans } from "@/services/scans.services";
 
-const ScanMonitoring = () => {
-  const { user, loading } = useAuth();
-
+const ScanMonitoring = ({ uid }) => {
   const [scans, setScans] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
 
   const fetchLatestScans = async () => {
-    if (!user) return;
+    if (!uid) return;
     setIsLoading(true);
     try {
       // Prefer a server route like /api/scans/me that reads cookie+uid server-side.
-      const data = await getUserLatestScans(user.id);
-      console.log("Latest scans data:", data);
+      const data = await getUserLatestScans(uid);
+
       setScans(data);
     } catch (error) {
       console.error("Error fetching latest scans:", error);
@@ -38,7 +36,7 @@ const ScanMonitoring = () => {
 
   React.useEffect(() => {
     fetchLatestScans();
-  }, [user && user.id]);
+  }, [uid]);
 
   const renderIcon = (type) => {
     switch (type) {
@@ -197,7 +195,7 @@ const ScanMonitoring = () => {
                 </tr>
               </thead>
 
-              {isLoading || loading ? (
+              {isLoading ? (
                 <HistoriqueDashboardSkeleton />
               ) : (
                 <tbody className="divide-y divide-gray-200">

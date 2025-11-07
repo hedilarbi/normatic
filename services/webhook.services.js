@@ -1,4 +1,10 @@
-export const launchScanWebhook = async (uuid, cgvUrl, rgpdUrl, legalUrl) => {
+export const launchScanWebhook = async (
+  uuid,
+  cgvUrl,
+  rgpdUrl,
+  legalUrl,
+  intensity
+) => {
   try {
     const webhookUrl = process.env.WEBHOOK_URL;
 
@@ -9,7 +15,7 @@ export const launchScanWebhook = async (uuid, cgvUrl, rgpdUrl, legalUrl) => {
       notify_url: process.env.BASE_URL
         ? `${process.env.BASE_URL}/api/scans/webhook-scan-results`
         : null,
-      scanType: "lite",
+      scanType: intensity || "lite",
       urls: {},
     };
 

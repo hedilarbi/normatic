@@ -12,7 +12,7 @@ export default async function ProtectedLayout({ children }) {
       <div className="flex bg-gray-50 ">
         <Aside />
         <main
-          className="flex-1 h-[calc(100vh-100px)] max-h-[calc(100vh-100px)] overflow-y-auto"
+          className="flex-1 h-[calc(100vh-100px)] max-h-[calc(100vh-100px)] overflow-y-auto relative"
           id="main-content"
         >
           {children}

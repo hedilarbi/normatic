@@ -9,22 +9,11 @@ import {
   query,
 } from "firebase/firestore";
 
-export const createUserDocument = async (userData) => {
+export const createUserDocument = async (payload) => {
   try {
-    const usersRef = collection(db, "users");
-    const emailQuery = query(usersRef, where("email", "==", userData.email));
-    const querySnapshot = await getDocs(emailQuery);
-
-    if (!querySnapshot.empty) {
-      return;
-    }
-    const docRef = doc(usersRef);
-    await setDoc(docRef, {
-      ...userData,
-      createdAt: new Date(),
-    });
-
-    return docRef.id;
+    const userRef = doc(collection(db, "users"));
+    await setDoc(userRef, payload);
+    return { id: userRef.id, ...payload };
   } catch (error) {
     console.error("Error creating user document:", error);
     throw error;
@@ -42,6 +31,16 @@ export const getUserDocument = async (email) => {
     return { id: userDoc.id, ...userDoc.data() };
   } catch (error) {
     console.error("Error fetching user document:", error);
+    throw error;
+  }
+};
+
+export const updateUserDocument = async (userId, updates) => {
+  try {
+    const userRef = doc(db, "users", userId);
+    await setDoc(userRef, updates, { merge: true });
+  } catch (error) {
+    console.error("Error updating user document:", error);
     throw error;
   }
 };

@@ -1,77 +1,97 @@
-// app/connexion/page.tsx
+// app/connexion/page.jsx
 "use client";
 
 import { useState } from "react";
-import { auth } from "@/lib/firebase";
 import Link from "next/link";
-import { Github, LogIn } from "lucide-react";
+import { useRouter } from "next/navigation";
 import {
   GithubAuthProvider,
   GoogleAuthProvider,
   signInWithEmailAndPassword,
   signInWithPopup,
-  signOut,
 } from "firebase/auth";
-import { useRouter } from "next/navigation";
-import { getUserDocument } from "@/services/users.services";
+import { Github, LogIn } from "lucide-react";
+
+import { auth } from "@/lib/firebase";
+import { useAuth } from "@/context/AuthContext";
+import { createUserDocument, getUserDocument } from "@/services/users.services";
 
 export default function ConnexionPage() {
+  const router = useRouter();
+  const { refresh } = useAuth();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState(null);
-  const router = useRouter();
 
-  const oauthSignIn = async (provider) => {
-    setErr(null);
-    setLoading(true);
+  const startSession = async (idToken) => {
     try {
-      let result;
-
-      if (provider === "google") {
-        const prov = new GoogleAuthProvider();
-        result = await signInWithPopup(auth, prov);
-      } else if (provider === "github") {
-        const prov = new GithubAuthProvider();
-        // Example: request user:email scope if you rely on email
-        // prov.addScope("user:email");
-        result = await signInWithPopup(auth, prov);
-      } else {
-        throw new Error("Unknown provider");
-      }
-
-      // ✅ ID token comes from result.user
-      const idToken = await result.user.getIdToken(true);
-
-      // Create your server session
       await fetch("/api/session/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({ idToken }),
       });
+    } catch (_) {
+      // non-blocking
+    }
+  };
 
-      // Try to resolve the user's email (GitHub can be null)
+  const ensureUserDocThenRoute = async ({ userEmail, uid, provider }) => {
+    // Try to load user profile by email
+    let profile = null;
+    if (userEmail) {
+      const doc = await getUserDocument(userEmail); // should return plain object or null
+      if (doc && doc.email) profile = doc;
+    }
+
+    // If missing, create it (isProfileSetup = false) and go onboarding
+    if (!profile) {
+      const payload = {
+        uid,
+        email: userEmail,
+        provider,
+        isProfileSetup: false,
+        createdAt: new Date().toISOString(),
+      };
+
+      await createUserDocument(payload);
+
+      await refresh();
+      router.replace("/onboarding");
+      return;
+    }
+
+    // Existing user -> route to dashboard
+    await refresh();
+    router.replace("/dashboard");
+  };
+
+  const oauthSignIn = async (provider) => {
+    setErr(null);
+    setLoading(true);
+    try {
+      let prov =
+        provider === "google"
+          ? new GoogleAuthProvider()
+          : new GithubAuthProvider();
+
+      const result = await signInWithPopup(auth, prov);
+      const u = result.user;
+      const idToken = await u.getIdToken(true);
+
+      await startSession(idToken);
+
+      // Email might be null with GitHub if email is private; try providerData as fallback
       const resolvedEmail =
-        result.user.email ||
-        (result.user.providerData && result.user.providerData[0]?.email) ||
-        null;
+        u.email || (u.providerData && u.providerData[0]?.email) || null;
 
-      let userProfile = null;
-      if (resolvedEmail) {
-        userProfile = await getUserDocument(resolvedEmail);
-      }
-
-      if (!userProfile) {
-        await signOut(auth);
-        const qs = resolvedEmail
-          ? `?email=${encodeURIComponent(resolvedEmail)}&step=1`
-          : `?step=1`;
-        router.push(`/onboarding${qs}`);
-        return;
-      }
-
-      router.replace("/dashboard");
+      await ensureUserDocThenRoute({
+        userEmail: resolvedEmail,
+        uid: u.uid,
+        provider,
+      });
     } catch (e) {
       console.error(e);
       setErr("Échec de la connexion. Réessaie.");
@@ -87,17 +107,12 @@ export default function ConnexionPage() {
       const result = await signInWithEmailAndPassword(auth, email, password);
       const idToken = await result.user.getIdToken(true);
 
-      await fetch("/api/session/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ idToken }),
-      });
-
+      await startSession(idToken);
+      await refresh();
       router.replace("/dashboard");
     } catch (e) {
       console.error(e);
-      setErr("Échec de l'inscription. Réessaie.");
+      setErr("Échec de la connexion. Vérifie tes identifiants.");
     } finally {
       setLoading(false);
     }
@@ -122,6 +137,7 @@ export default function ConnexionPage() {
               placeholder="vous@exemple.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
             />
           </div>
 
@@ -135,13 +151,14 @@ export default function ConnexionPage() {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
             />
           </div>
 
           <button
             onClick={emailSignIn}
             disabled={loading}
-            className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 font-medium text-white hover:opacity-95 transition"
+            className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 font-medium text-white hover:opacity-95 transition disabled:opacity-60"
           >
             <LogIn className="w-4 h-4" />
             {loading ? "Connexion..." : "Se connecter"}
@@ -157,14 +174,14 @@ export default function ConnexionPage() {
             <button
               onClick={() => oauthSignIn("google")}
               disabled={loading}
-              className="w-full text-black rounded-lg border border-light-gray px-4 py-2 text-sm font-medium hover:bg-gray-50"
+              className="w-full text-black rounded-lg border border-light-gray px-4 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-60"
             >
               Continuer avec Google
             </button>
             <button
               onClick={() => oauthSignIn("github")}
               disabled={loading}
-              className="w-full rounded-lg border border-light-gray px-4 py-2 text-sm font-medium hover:bg-gray-50"
+              className="w-full rounded-lg border border-light-gray px-4 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-60"
             >
               <span className="inline-flex items-center gap-2 text-black">
                 <Github className="w-4 h-4" /> GitHub

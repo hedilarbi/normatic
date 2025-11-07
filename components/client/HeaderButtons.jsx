@@ -2,6 +2,7 @@
 import Link from "next/link";
 import React from "react";
 import { useAuth } from "@/context/AuthContext";
+import LogoutButton from "../dashboard/LogoutButton";
 const HeaderButtons = () => {
   const { user, loading } = useAuth();
 
@@ -9,7 +10,11 @@ const HeaderButtons = () => {
     return null; // or a loading spinner
   }
   if (user && !loading) {
-    return null;
+    return (
+      <div className="flex items-center space-x-4">
+        <LogoutButton />
+      </div>
+    );
   }
   return (
     <div className="flex items-center space-x-4">

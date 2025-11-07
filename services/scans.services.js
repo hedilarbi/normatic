@@ -51,3 +51,44 @@ export const getUserLatestScans = async (userId) => {
     throw error;
   }
 };
+
+export const getUserTypedScans = async (userId, scanType) => {
+  try {
+    const userScansRef = collection(db, "scans");
+    const q = query(
+      userScansRef,
+      where("userId", "==", userId),
+      where("type", "==", scanType),
+      orderBy("createdAt", "desc")
+    );
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      return [];
+    }
+
+    const typedScans = querySnapshot.docs.map((doc) => doc.data());
+    return typedScans;
+  } catch (error) {
+    console.error("Error fetching user's typed scans:", error);
+    throw error;
+  }
+};
+
+export const getScanByUUID = async (scanUuid) => {
+  try {
+    const scansRef = collection(db, "scans");
+    const q = query(scansRef, where("scanUuid", "==", scanUuid), limit(1));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      return null;
+    }
+
+    const scanDoc = querySnapshot.docs[0];
+    return { id: scanDoc.id, ...scanDoc.data() };
+  } catch (error) {
+    console.error("Error fetching scan by UUID:", error);
+    throw error;
+  }
+};
