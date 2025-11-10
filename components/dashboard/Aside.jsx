@@ -2,9 +2,10 @@
 import Link from "next/link";
 import React from "react";
 import { usePathname } from "next/navigation";
-import { FaChartLine, FaExclamation } from "react-icons/fa6";
+import { FaChartLine, FaExclamation, FaLink } from "react-icons/fa6";
 import LogoutButton from "./LogoutButton";
-
+import { GrCompliance } from "react-icons/gr";
+import { LuBadgeCheck } from "react-icons/lu";
 const linkBase =
   "flex items-center space-x-3 px-3 py-2 rounded-lg cursor-pointer transition-colors";
 const inactive = "text-gray-600 hover:bg-gray-100";
@@ -14,8 +15,8 @@ const Aside = () => {
   const pathname = usePathname();
 
   const isActive = (href) =>
-    href === "/tableau-de-bord"
-      ? pathname === "/tableau-de-bord"
+    href === "/dashboard"
+      ? pathname === "/dashboard"
       : pathname.startsWith(href);
 
   return (
@@ -69,7 +70,7 @@ const Aside = () => {
                     : "border-gray-600 text-gray-600"
                 }`}
               >
-                <FaExclamation />
+                <GrCompliance />
               </div>
               <span>Conformité Mentions légales</span>
             </Link>
@@ -87,9 +88,27 @@ const Aside = () => {
                     : "border-gray-600 text-gray-600"
                 }`}
               >
-                <FaExclamation />
+                <LuBadgeCheck />
               </div>
               <span>Conformité CGV</span>
+            </Link>
+
+            <Link
+              href="/dashboard/domaines"
+              className={`${linkBase} ${
+                isActive("/dashboard/domaines") ? active : inactive
+              }`}
+            >
+              <div
+                className={`border border-dotted rounded-full p-1 ${
+                  isActive("/dashboard/domaines")
+                    ? "border-current"
+                    : "border-gray-600 text-gray-600"
+                }`}
+              >
+                <FaLink />
+              </div>
+              <span>Domaines & URLs</span>
             </Link>
           </div>
         </div>

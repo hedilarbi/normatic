@@ -10,8 +10,8 @@ import {
   signInWithEmailAndPassword,
   signInWithPopup,
 } from "firebase/auth";
-import { Github, LogIn } from "lucide-react";
-
+import { FaGithub } from "react-icons/fa";
+import { FcGoogle } from "react-icons/fc";
 import { auth } from "@/lib/firebase";
 import { useAuth } from "@/context/AuthContext";
 import { createUserDocument, getUserDocument } from "@/services/users.services";
@@ -120,7 +120,7 @@ export default function ConnexionPage() {
 
   return (
     <div className="min-h-[100dvh] grid place-items-center bg-white">
-      <div className="w-full max-w-[460px] bg-white border border-light-gray rounded-2xl shadow-sm p-8">
+      <div className="bg-white rounded-2xl shadow-2xl p-8 border border-gray-100 w-full max-w-xl">
         <h1 className="text-2xl font-semibold text-primary-dark mb-2">
           Connexion
         </h1>
@@ -160,32 +160,34 @@ export default function ConnexionPage() {
             disabled={loading}
             className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 font-medium text-white hover:opacity-95 transition disabled:opacity-60"
           >
-            <LogIn className="w-4 h-4" />
             {loading ? "Connexion..." : "Se connecter"}
           </button>
 
-          <div className="flex items-center gap-3 my-2">
-            <div className="h-px bg-light-gray flex-1" />
-            <span className="text-xs text-gray-400">ou</span>
-            <div className="h-px bg-light-gray flex-1" />
+          <div className="relative my-2">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-white px-2 text-gray-500">ou</span>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <button
               onClick={() => oauthSignIn("google")}
               disabled={loading}
-              className="w-full text-black rounded-lg border border-light-gray px-4 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-60"
+              className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border hover:bg-gray-50 disabled:opacity-60"
             >
+              <FcGoogle />
               Continuer avec Google
             </button>
             <button
               onClick={() => oauthSignIn("github")}
               disabled={loading}
-              className="w-full rounded-lg border border-light-gray px-4 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-60"
+              className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border hover:bg-gray-50 disabled:opacity-60"
             >
-              <span className="inline-flex items-center gap-2 text-black">
-                <Github className="w-4 h-4" /> GitHub
-              </span>
+              <FaGithub />
+              Continuer avec GitHub
             </button>
           </div>
 

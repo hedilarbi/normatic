@@ -14,7 +14,6 @@ import {
 
 export const updateScanWithUserId = async (scanId, userId) => {
   try {
-    console.log("Updating scan", scanId, "with user ID:", userId);
     const scanRef = doc(db, "scans", scanId);
     const scanSnap = await getDoc(scanRef);
 

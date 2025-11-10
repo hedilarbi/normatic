@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { IoCloseSharp } from "react-icons/io5";
-const LaunchScanModal = ({ type, userId, setIsOpen, setRefresh }) => {
+const LaunchScanModal = ({ type, userId, setIsOpen, setRefresh, urls }) => {
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState(null);
   const [url, setUrl] = React.useState("");
@@ -41,12 +41,24 @@ const LaunchScanModal = ({ type, userId, setIsOpen, setRefresh }) => {
         handleClose();
       }
     } catch (e) {
-      console.log(e);
+      console.error(e);
       setError("Une erreur est survenue.");
     } finally {
       setIsLoading(false);
     }
   };
+  const urlOptions = React.useMemo(() => {
+    if (!urls) return [];
+
+    const options = [];
+    urls.forEach((u) => {
+      if (u[type]) {
+        options.push({ label: u[type], value: u[type] });
+      }
+    });
+    return options;
+  }, [urls, type]);
+
   return (
     <div className="bg-black/30 absolute top-0 left-0 w-full h-full flex justify-center items-center ">
       {isLoading && (
@@ -66,18 +78,29 @@ const LaunchScanModal = ({ type, userId, setIsOpen, setRefresh }) => {
             {error}
           </div>
         )}
-        <div>
-          <label className="block text-sm text-gray-700 mb-2">RGPD (URL)</label>
-          <input
-            type="url"
-            placeholder="https://exemple.com/mentions-legales"
-            className={`w-full border rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary-blue`}
-            value={url}
-            onChange={(e) => {
-              setUrl(e.target.value);
-            }}
-          />
+
+        <div className="mt-4">
+          <label className="block text-sm text-gray-700 mb-2">
+            URL prédéfinie ({type})
+          </label>
+          <select
+            className="w-full border rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary-blue"
+            value={url || ""}
+            onChange={(e) => setUrl(e.target.value)}
+          >
+            {urlOptions.length === 0 && (
+              <option value="" disabled>
+                Aucune URL prédéfinie pour ce type
+              </option>
+            )}
+            {urlOptions.map((opt, idx) => (
+              <option key={idx} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
         </div>
+
         <div className="mt-4">
           <label className="block text-sm text-gray-700 mb-2">
             Intensité du scan
@@ -92,6 +115,7 @@ const LaunchScanModal = ({ type, userId, setIsOpen, setRefresh }) => {
             <option value="advanced">Avancé (approfondi)</option>
           </select>
         </div>
+
         <div className="flex justify-end">
           <button
             className="bg-primary-blue text-white rounded-md px-6 py-2 mt-4"

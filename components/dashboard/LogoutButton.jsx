@@ -8,13 +8,14 @@ import { useAuth } from "@/context/AuthContext";
 
 const LogoutButton = () => {
   const router = useRouter();
-  const { refresh } = useAuth();
+  const { setUser } = useAuth();
   const handleLogout = async () => {
     await fetch("/api/session/logout", {
       method: "POST",
       credentials: "include",
     });
     await signOut(auth);
+    setUser(null);
 
     router.replace("/connexion");
   };

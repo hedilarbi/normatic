@@ -1,15 +1,18 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
-
-import { useRouter } from "next/navigation";
-
-import { FaBuilding, FaUser, FaCheck, FaArrowRight } from "react-icons/fa";
+import React, { useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import {
+  FaBuilding,
+  FaUser,
+  FaCheck,
+  FaArrowRight,
+  FaLink,
+} from "react-icons/fa";
 
 import "react-international-phone/style.css";
 import { PhoneInput } from "react-international-phone";
 import {
-  isValidPhoneNumber,
   parsePhoneNumberFromString,
   getCountryCallingCode,
 } from "libphonenumber-js";
@@ -18,8 +21,8 @@ import countries from "i18n-iso-countries";
 import frLocale from "i18n-iso-countries/langs/fr.json";
 
 import { updateUserDocument } from "@/services/users.services";
-import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+
 countries.registerLocale(frLocale);
 
 // Remplacer le préfixe +code actuel par celui du pays choisi
@@ -33,23 +36,20 @@ function withDialForCountry(currentValue, iso2) {
 
 export default function OnboardingPage() {
   const searchParams = useSearchParams();
-
   const stepFromSearch = searchParams.get("step");
   let emailFromSearch = searchParams.get("email");
   emailFromSearch = emailFromSearch ? decodeURIComponent(emailFromSearch) : "";
+
   const router = useRouter();
   const { loading, user, refresh } = useAuth();
-  // Steps: 0=Auth, 1=Infos, 2=Plan, 3=Done
+
+  // 🧭 Steps: 0=Auth, 1=Infos, 2=URLs, 3=Plan, 4=Done
   const [step, setStep] = useState(
     stepFromSearch ? parseInt(stepFromSearch, 10) : 1
   );
 
-  // Auth (step 0)
+  const [urls, setUrls] = useState(user?.urls?.[0] || {}); // { rgpd, cgv, legals, domain? }
 
-  const [email, setEmail] = useState(emailFromSearch ? emailFromSearch : "");
-
-  // Step 1: infos
-  const [isLoading, setIsLoading] = useState(false);
   const [accountType, setAccountType] = useState("individual");
 
   // Options pays en FR (adresse/facturation)
@@ -78,13 +78,30 @@ export default function OnboardingPage() {
     address: { street: "", line2: "", city: "", region: "", postal: "" },
   });
 
-  // Step 2 – Plan
-  const [plan, setPlan] = useState("free");
+  // Step 3 – Plan
+  const [plan, setPlan] = useState("pro");
   const [error, setError] = useState(null);
 
-  // Step 1: Infos
+  const label = (t) => (
+    <span className="text-sm font-inter text-gray-700">{t}</span>
+  );
+
+  // Auto-détection du pays depuis le numéro
+  const handlePhoneBlur = () => {
+    if (!phone) return;
+    try {
+      const pn = parsePhoneNumberFromString(phone);
+      const iso = pn?.country; // ex: 'FR'
+      if (iso && countryOptions.find((c) => c.code === iso)) {
+        setCountryCode(iso);
+        setRiCountry(iso.toLowerCase());
+      }
+    } catch {}
+  };
+
+  // ✅ STEP 1: validation infos
   const saveStep1 = async () => {
-    if (!phone) {
+    if (!phone || phone.replace(/\D/g, "").length < 6) {
       setPhoneError("Numéro de téléphone invalide.");
       return;
     }
@@ -113,8 +130,7 @@ export default function OnboardingPage() {
         setError("Code postal requis.");
         return;
       }
-    }
-    if (accountType === "organization") {
+    } else {
       if (org.name.trim().length === 0) {
         setError("Nom de l'organisation requis.");
         return;
@@ -146,22 +162,93 @@ export default function OnboardingPage() {
     }
 
     setError(null);
-    setStep(2);
+    setStep(2); // ➡️ passe à l'étape URLs
   };
 
-  // Step 2: Plan
+  // ✅ STEP 2: validation URLs (obligatoire: au moins une ; même base ; ajoute urls.domain automatiquement)
+  const saveStep2Urls = async () => {
+    // On ne garde que les trois champs concernés, en les trimant
+    const entries = [
+      { key: "rgpd", label: "URL RGPD" },
+      { key: "cgv", label: "URL CGV" },
+      { key: "legals", label: "URL Mentions légales" },
+    ];
+
+    const provided = entries
+      .map(({ key, label }) => {
+        const raw = (urls?.[key] ?? "").trim();
+        return { key, label, value: raw };
+      })
+      .filter(({ value }) => value.length > 0);
+
+    // 1) Au moins une URL
+    if (provided.length === 0) {
+      setError("Renseigne au moins une URL (RGPD, CGV ou Mentions légales).");
+      return;
+    }
+
+    // 2) Format: doit commencer par http(s) et être une URL valide
+    for (const { label, value } of provided) {
+      if (!/^https?:\/\/.+/i.test(value)) {
+        setError(`${label} doit commencer par http:// ou https://`);
+        return;
+      }
+      try {
+        // eslint-disable-next-line no-new
+        new URL(value);
+      } catch {
+        setError(`${label} est invalide.`);
+        return;
+      }
+    }
+
+    // 3) Même base (origin) pour toutes les URLs renseignées
+    let baseOrigin;
+    try {
+      baseOrigin = new URL(provided[0].value).origin;
+    } catch {
+      setError("Une des URLs renseignées est invalide.");
+      return;
+    }
+    for (const { value, label } of provided.slice(1)) {
+      try {
+        const currentOrigin = new URL(value).origin;
+        if (currentOrigin !== baseOrigin) {
+          setError(
+            "Toutes les URLs renseignées doivent partager la même base (ex: https://example.com)."
+          );
+          return;
+        }
+      } catch {
+        setError(`${label} est invalide.`);
+        return;
+      }
+    }
+
+    // 4) Injecte automatiquement le domaine principal déduit
+    setUrls((prev) => ({
+      ...prev,
+      domain: baseOrigin,
+    }));
+
+    setError(null);
+    setStep(3); // ➡️ étape plan
+  };
+
+  // ✅ STEP 3: sauvegarde finale
   const savePlan = async () => {
     try {
       await updateUserDocument(user.id, {
         phone,
         accountType,
         ...(accountType === "individual" ? { ...individual } : { ...org }),
+        urls: [urls],
         plan: plan,
         isProfileSetup: true,
       });
       await refresh();
 
-      setStep(3);
+      setStep(4);
 
       setTimeout(() => {
         router.push("/dashboard");
@@ -177,29 +264,12 @@ export default function OnboardingPage() {
     }
   }, [step]);
 
-  const label = (t) => (
-    <span className="text-sm font-inter text-gray-700">{t}</span>
-  );
-
-  // Auto-détection du pays depuis le numéro
-  const handlePhoneBlur = () => {
-    if (!phone) return;
-    try {
-      const pn = parsePhoneNumberFromString(phone);
-      const iso = pn?.country; // ex: 'FR'
-      if (iso && countryOptions.find((c) => c.code === iso)) {
-        setCountryCode(iso);
-        setRiCountry(iso.toLowerCase());
-      }
-    } catch {}
-  };
-
   return (
     <section className="pt-28 pb-16 bg-gradient-to-br from-gray-50 to-white">
       <div className="max-w-5xl mx-auto px-6 lg:px-8">
         {/* Stepper */}
         <div className="flex items-center justify-center gap-6 mb-10">
-          {[0, 1, 2, 3].map((n) => (
+          {[0, 1, 2, 3, 4].map((n) => (
             <div key={n} className="flex items-center gap-3">
               <div
                 className={`w-9 h-9 rounded-full grid place-items-center border
@@ -214,14 +284,16 @@ export default function OnboardingPage() {
               <span className="hidden sm:inline text-sm font-inter text-gray-600">
                 {n === 0 && "Connexion"}
                 {n === 1 && "Informations"}
-                {n === 2 && "Choisir un plan"}
-                {n === 3 && "Confirmation"}
+                {n === 2 && "URLs"}
+                {n === 3 && "Choisir un plan"}
+                {n === 4 && "Confirmation"}
               </span>
             </div>
           ))}
         </div>
 
         <div className="bg-white rounded-2xl shadow-2xl p-8 border border-gray-100">
+          {/* STEP 1: Infos */}
           {step === 1 && (
             <div className="space-y-8">
               <div className="grid sm:grid-cols-2 gap-4">
@@ -230,7 +302,7 @@ export default function OnboardingPage() {
                   onClick={() => setAccountType("individual")}
                   className={`p-4 rounded-xl border flex items-center gap-3 ${
                     accountType === "individual"
-                      ? "border-primary-blue bg-primary-blue"
+                      ? "border-primary-blue bg-primary-blue text-white"
                       : "border-gray-200 text-black"
                   }`}
                 >
@@ -242,7 +314,7 @@ export default function OnboardingPage() {
                   onClick={() => setAccountType("organization")}
                   className={`p-4 rounded-xl border flex items-center gap-3 ${
                     accountType === "organization"
-                      ? "border-primary-blue bg-primary-blue"
+                      ? "border-primary-blue bg-primary-blue text-white"
                       : "border-gray-200 text-black"
                   }`}
                 >
@@ -569,35 +641,95 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {/* STEP 2: Plans */}
+          {/* STEP 2: URLs */}
           {step === 2 && (
             <div className="space-y-8">
-              <div className="grid md:grid-cols-3 gap-6">
+              <div>
+                <div className="text-xl font-inter font-semibold text-primary-dark flex items-center gap-2">
+                  <FaLink /> Renseigne tes URLs légales
+                </div>
+                <p className="text-gray-600 mt-1">
+                  Renseigne au moins une URL (RGPD, CGV ou Mentions légales).
+                  Elles doivent partager la même base (ex: https://exemple.com).
+                </p>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="md:col-span-2">
+                  {label("URL RGPD (Politique de confidentialité)")}
+                  <input
+                    className="w-full mt-2 border rounded-xl px-4 py-3"
+                    placeholder="https://exemple.com/rgpd"
+                    value={urls?.rgpd || ""}
+                    onChange={(e) =>
+                      setUrls((prev) => ({ ...prev, rgpd: e.target.value }))
+                    }
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  {label("URL CGV")}
+                  <input
+                    className="w-full mt-2 border rounded-xl px-4 py-3"
+                    placeholder="https://exemple.com/cgv"
+                    value={urls?.cgv || ""}
+                    onChange={(e) =>
+                      setUrls((prev) => ({ ...prev, cgv: e.target.value }))
+                    }
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  {label("URL Mentions légales")}
+                  <input
+                    className="w-full mt-2 border rounded-xl px-4 py-3"
+                    placeholder="https://exemple.com/mentions-legales"
+                    value={urls?.legals || ""}
+                    onChange={(e) =>
+                      setUrls((prev) => ({ ...prev, legals: e.target.value }))
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={() => setStep(1)}
+                  className="px-4 py-2 rounded-lg border text-primary-blue hover:bg-primary-blue/10 transition"
+                >
+                  Retour
+                </button>
+                <button
+                  onClick={saveStep2Urls}
+                  disabled={loading}
+                  className="flex items-center gap-2 bg-primary-blue text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-600 transition disabled:opacity-60"
+                >
+                  Continuer <FaArrowRight />
+                </button>
+              </div>
+
+              {error && (
+                <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-800">
+                  {error}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* STEP 3: Plans */}
+          {step === 3 && (
+            <div className="space-y-8">
+              <div className="grid md:grid-cols-1 gap-6 justify-center">
                 {[
-                  {
-                    id: "free",
-                    title: "Gratuit",
-                    price: "0€",
-                    features: ["1 site", "10 pages / scan", "Rapport email"],
-                  },
                   {
                     id: "pro",
                     title: "Professionnel",
-                    price: "29€/mois",
+                    price: "25€/mois",
                     features: [
-                      "5 sites",
-                      "500 pages / scan",
-                      "Tableau de bord + alertes",
-                    ],
-                  },
-                  {
-                    id: "business",
-                    title: "Business",
-                    price: "99€/mois",
-                    features: [
-                      "Multi-org",
-                      "1000+ pages / scan",
-                      "SLA & exports",
+                      "1 Domaine",
+                      "Tableau de bord",
+                      "10 scans par mois",
+                      "Rapport mensuel automatique + alertes par email",
                     ],
                   },
                 ].map((p) => (
@@ -630,7 +762,7 @@ export default function OnboardingPage() {
               </div>
               <div className="flex items-center justify-between">
                 <button
-                  onClick={() => setStep(1)}
+                  onClick={() => setStep(2)}
                   className="px-4 py-2 rounded-lg border text-primary-blue hover:bg-primary-blue/10 transition"
                 >
                   Retour
@@ -651,8 +783,8 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {/* STEP 3: Done */}
-          {step === 3 && (
+          {/* STEP 4: Done */}
+          {step === 4 && (
             <div className="text-center py-16">
               <div className="w-16 h-16 rounded-full bg-primary-green/10 text-primary-green grid place-items-center mx-auto">
                 <FaCheck className="text-2xl" />

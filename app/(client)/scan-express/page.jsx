@@ -10,9 +10,8 @@ import {
 import Link from "next/link";
 
 export default function ScanExpressPage() {
-  const [website, setWebsite] = useState("");
   const [email, setEmail] = useState("");
-  const [types, setTypes] = useState([]); // etat manquant dans ton extrait
+  // etat manquant dans ton extrait
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(null);
   const [error, setError] = useState(null);
@@ -29,6 +28,7 @@ export default function ScanExpressPage() {
   });
 
   const scanId = useRef(null);
+  const domain = useRef(null);
 
   const isValidUrl = (value) => {
     const v = (value || "").trim();
@@ -88,7 +88,7 @@ export default function ScanExpressPage() {
       const res = await fetch("/api/scans/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ website, email, types, legal }),
+        body: JSON.stringify({ email, legal }),
       });
 
       const json = await res.json();
@@ -97,7 +97,8 @@ export default function ScanExpressPage() {
 
       setDone(json.message);
       scanId.current = json.scanId;
-      setWebsite("");
+      domain.current = json.domain;
+
       setEmail("");
       // on garde legalLinks pour éviter de retaper si besoin
     } catch (err) {
@@ -130,20 +131,7 @@ export default function ScanExpressPage() {
 
         <div className="bg-white rounded-2xl shadow-2xl p-8 border border-gray-100">
           <form onSubmit={startScan} className="space-y-6">
-            <div className="grid lg:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-inter text-gray-700 mb-2">
-                  URL du site web
-                </label>
-                <input
-                  type="url"
-                  required
-                  placeholder="https://exemple.com"
-                  className="w-full border rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary-blue"
-                  value={website}
-                  onChange={(e) => setWebsite(e.target.value)}
-                />
-              </div>
+            <div className="grid lg:grid-cols-1">
               <div>
                 <label className="block text-sm font-inter text-gray-700 mb-2">
                   Email de réception
@@ -260,11 +248,7 @@ export default function ScanExpressPage() {
                   <h3
                     key={t}
                     type="button"
-                    className={`px-4 py-2 rounded-full border ${
-                      types.includes(t)
-                        ? "bg-primary-blue text-white border-primary-blue"
-                        : "bg-gray-50 text-gray-700 border-gray-200"
-                    } transition`}
+                    className={`px-4 py-2 rounded-full border ${"bg-primary-blue text-white border-primary-blue"} transition`}
                   >
                     {t.replace("_", " ")}
                   </h3>
@@ -305,7 +289,18 @@ export default function ScanExpressPage() {
                     résultats dans le tableau de bord.
                   </p>
                   <Link
-                    href={"/inscription?scanId=" + (scanId.current || "")}
+                    href={
+                      "/inscription?scanId=" +
+                      (scanId.current || "") +
+                      "&domain=" +
+                      encodeURIComponent(domain.current || "") +
+                      "&cgvUrl=" +
+                      encodeURIComponent(legalLinks.cgv.trim() || "") +
+                      "&rgpdUrl=" +
+                      encodeURIComponent(legalLinks.privacy.trim() || "") +
+                      "&legalUrl=" +
+                      encodeURIComponent(legalLinks.mentions.trim() || "")
+                    }
                     className="inline-block mt-3 bg-primary-blue text-white px-5 py-2 rounded-lg font-inter hover:bg-blue-600"
                   >
                     Continuer l’inscription

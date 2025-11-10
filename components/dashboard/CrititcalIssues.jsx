@@ -17,7 +17,7 @@ const CrititcalIssues = () => {
     try {
       // Prefer a server route like /api/scans/me that reads cookie+uid server-side.
       const data = await getUserLatestScans(user.id);
-      console.log("Latest scans data:", data);
+
       setScans(data);
     } catch (error) {
       console.error("Error fetching latest scans:", error);

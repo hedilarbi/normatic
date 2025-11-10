@@ -1,11 +1,27 @@
+"use client";
 import Aside from "@/components/dashboard/Aside";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import { useAuth } from "@/context/AuthContext";
+import DashboardSkeleton from "@/components/skeletons/DashboardSkeleton";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+export default function ProtectedLayout({ children }) {
+  const { user, loading } = useAuth();
+  const router = useRouter();
 
-import { getCurrentUser } from "@/lib/auth";
-import { redirect } from "next/navigation";
-export default async function ProtectedLayout({ children }) {
-  const user = await getCurrentUser();
-  if (!user) redirect("/connexion");
+  useEffect(() => {
+    if (!loading && !user) {
+      router.replace("/connexion");
+    }
+    if (user && !user.isProfileSetup && !loading) {
+      router.replace("/onboarding");
+    }
+  }, [user, loading]);
+
+  if (loading) {
+    return <DashboardSkeleton />;
+  }
+
   return (
     <div>
       <DashboardHeader />

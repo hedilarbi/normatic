@@ -9,7 +9,8 @@ import {
   sendEmailVerification,
   GithubAuthProvider,
 } from "firebase/auth";
-import { FaGithub, FaGoogle } from "react-icons/fa";
+import { FaGithub } from "react-icons/fa";
+import { FcGoogle } from "react-icons/fc";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -22,6 +23,10 @@ const InscriptionPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const scanId = searchParams.get("scanId"); // <-- read scanId from URL
+  const domain = decodeURIComponent(searchParams.get("domain") || ""); // <-- read domain from URL
+  const cgvUrl = decodeURIComponent(searchParams.get("cgvUrl") || "");
+  const rgpdUrl = decodeURIComponent(searchParams.get("rgpdUrl") || "");
+  const mentionsUrl = decodeURIComponent(searchParams.get("legalUrl") || "");
 
   const { refresh } = useAuth();
 
@@ -81,6 +86,15 @@ const InscriptionPage = () => {
         uid: authUid, // keep uid inside the doc even if your doc id is the email
         email: userEmail,
         provider,
+        urls: [
+          {
+            domain: domain || null,
+            cgv: cgvUrl || null,
+            rgpd: rgpdUrl || null,
+            legals: mentionsUrl || null,
+          },
+        ],
+
         isProfileSetup: false,
         createdAt: new Date().toISOString(),
       };
@@ -195,34 +209,6 @@ const InscriptionPage = () => {
             Crée ton compte
           </h1>
 
-          <div className="grid sm:grid-cols-2 gap-3 text-black">
-            <button
-              onClick={() => oauthSignIn("google")}
-              disabled={authLoading}
-              className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border hover:bg-gray-50 disabled:opacity-60"
-            >
-              <FaGoogle />
-              Continuer avec Google
-            </button>
-            <button
-              onClick={() => oauthSignIn("github")}
-              disabled={authLoading}
-              className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border hover:bg-gray-50 disabled:opacity-60"
-            >
-              <FaGithub />
-              Continuer avec GitHub
-            </button>
-          </div>
-
-          <div className="relative my-2">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-2 text-gray-500">ou</span>
-            </div>
-          </div>
-
           <div className="space-y-4">
             <div>
               {label("Email")}
@@ -280,6 +266,33 @@ const InscriptionPage = () => {
             </div>
           )}
 
+          <div className="relative my-2">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-white px-2 text-gray-500">ou</span>
+            </div>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-3 text-black">
+            <button
+              onClick={() => oauthSignIn("google")}
+              disabled={authLoading}
+              className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border hover:bg-gray-50 disabled:opacity-60"
+            >
+              <FcGoogle />
+              Continuer avec Google
+            </button>
+            <button
+              onClick={() => oauthSignIn("github")}
+              disabled={authLoading}
+              className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border hover:bg-gray-50 disabled:opacity-60"
+            >
+              <FaGithub />
+              Continuer avec GitHub
+            </button>
+          </div>
           <p className="text-xs text-gray-500">
             En continuant, tu acceptes nos{" "}
             <Link href="/mentions-legales" className="underline">

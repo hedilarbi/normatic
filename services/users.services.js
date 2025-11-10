@@ -44,3 +44,13 @@ export const updateUserDocument = async (userId, updates) => {
     throw error;
   }
 };
+
+export const updateUserUrls = async (userId, urls) => {
+  try {
+    const userRef = doc(db, "users", userId);
+    await setDoc(userRef, { urls }, { merge: true });
+  } catch (error) {
+    console.error("Error updating user URLs:", error);
+    throw error;
+  }
+};

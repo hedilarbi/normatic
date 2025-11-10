@@ -7,9 +7,9 @@ import { generateUUID } from "../../../../utils/generateUUID";
 
 export async function POST(req) {
   const body = await req.json().catch(() => ({}));
-  const { website, email, legal } = body;
+  const { email, legal } = body;
 
-  if (!website || !email) {
+  if (!email) {
     return NextResponse.json(
       { ok: false, error: "Champs requis manquants." },
       { status: 400 }
@@ -60,13 +60,19 @@ export async function POST(req) {
     }
   }
 
-  const url = normalizeUrl(website);
+  const origins = [];
+  if (cgvUrl) origins.push(new URL(cgvUrl).origin);
+  if (rgpdUrl) origins.push(new URL(rgpdUrl).origin);
+  if (legalUrl) origins.push(new URL(legalUrl).origin);
 
-  if (!url)
+  const uniqueOrigins = [...new Set(origins)];
+
+  if (uniqueOrigins.length > 1) {
     return NextResponse.json(
-      { ok: false, error: "URL invalide." },
+      { ok: false, error: "Les URLs doivent appartenir au même domaine." },
       { status: 400 }
     );
+  }
 
   const uuid = generateUUID();
   const result = await launchScanWebhook(uuid, cgvUrl, rgpdUrl, legalUrl);
@@ -79,7 +85,7 @@ export async function POST(req) {
   // ajouter une tâche dans Firestore
   const db = admin.firestore();
   const scan = await db.collection("scans").add({
-    websiteUrl: url,
+    domain: uniqueOrigins[0],
     email,
     status: "in_progress",
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -103,5 +109,6 @@ export async function POST(req) {
     message:
       "Scan lancé. Les résultats seront envoyés par email. Poursuis ton inscription pour accéder au tableau de bord.",
     scanId: scan.id,
+    domain: uniqueOrigins[0],
   });
 }

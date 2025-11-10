@@ -42,7 +42,7 @@ const CreateNewScan = ({ userId, setIsOpen, setRefresh }) => {
         handleClose();
       }
     } catch (e) {
-      console.log(e);
+      console.error(e);
       setError("Une erreur est survenue.");
     } finally {
       setIsLoading(false);

@@ -92,9 +92,8 @@ async function sendScanResultsEmail({ to, website, results }) {
     subject: `Résultats du scan – ${website || "Projet"}`,
     html,
   };
-  console.log("[scan-email] sending to:", to);
-  const response = await transporter.sendMail(mailOptions);
-  console.log("[scan-email] sent:", response.messageId);
+
+  await transporter.sendMail(mailOptions);
 }
 
 export async function POST(req) {
@@ -178,7 +177,6 @@ export async function POST(req) {
       website: scanData.website || results.website,
       results,
     });
-    console.log("[scan-email] triggered email to:", recipient);
 
     // ✅ Return the response
     return NextResponse.json({ ok: true });

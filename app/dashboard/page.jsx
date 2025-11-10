@@ -19,14 +19,15 @@ const Page = () => {
       </div>
     );
   }
-  if (!user.isProfileSetup && !loading) {
-    router.replace("/onboarding");
+
+  if (!user) {
     return null;
   }
+
   return (
     <div className="">
       <DashboardHero />
-      <ComplianceChart />
+      {/* <ComplianceChart /> */}
       {/* <CrititcalIssues /> */}
       <ScanMonitoring uid={user.uid} />
       {/* <AutomatedCorrections /> */}
