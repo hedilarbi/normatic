@@ -15,8 +15,6 @@ function sanitizeForFirestore(value) {
     const out = {};
     for (const [k, v] of Object.entries(value)) {
       const sv = sanitizeForFirestore(v);
-      // If you prefer to DROP undefined keys instead of nulls:
-      // if (v === undefined) continue;
       out[k] = sv;
     }
     return out;
@@ -34,57 +32,155 @@ function buildTransporter() {
   });
 }
 
-async function sendScanResultsEmail({ to, website, results }) {
+function normalizeErrors(value) {
+  if (!value) return [];
+  if (Array.isArray(value)) return value.filter((e) => e != null && e !== "");
+  return [];
+}
+
+async function sendScanResultsEmail({
+  to,
+  website,
+  results,
+  scanUuid,
+  scanType,
+  baseUrl,
+}) {
   const transporter = buildTransporter();
+
+  const rgpdErrors = normalizeErrors(results?.rgpd?.errors);
+  const legalsErrors = normalizeErrors(results?.legals?.errors);
+  const cgvErrors = normalizeErrors(results?.cgv?.errors);
+  const cookiesErrors = normalizeErrors(results?.cookies?.errors);
+
+  const totalErrors =
+    rgpdErrors.length +
+    legalsErrors.length +
+    cgvErrors.length +
+    cookiesErrors.length;
 
   let html = `
     <h1>Résultats du scan</h1>
     <p>Bonjour,</p>
-    <p>Votre scan pour le site <strong>${website || "Projet"}</strong>.</p>
+    <p>Votre scan pour le site <strong>${
+      website || "Projet"
+    }</strong> est terminé.</p>
   `;
 
+  // Résumé global des erreurs
+  html += `
+    <p>
+      <strong>Nombre total d'erreurs détectées :</strong> ${totalErrors}
+    </p>
+    <ul>
+      <li>RGPD : ${rgpdErrors.length} erreur(s)</li>
+      <li>Mentions légales : ${legalsErrors.length} erreur(s)</li>
+      <li>CGV : ${cgvErrors.length} erreur(s)</li>
+      <li>Cookies : ${cookiesErrors.length} erreur(s)</li>
+    </ul>
+  `;
+
+  // --- Détail RGPD ---
   if (results?.rgpd?.result === "success") {
     html += `<h2>Conformité RGPD</h2>`;
     if (results.rgpd.conform) {
       html += `<p>Le site est conforme au RGPD.</p>`;
     } else {
-      html += `<p>Le site n'est pas conforme au RGPD.</p><ul>`;
-      (results.rgpd.errors || []).forEach((e) => (html += `<li>${e}</li>`));
-      html += `</ul>`;
+      html += `<p>Le site n'est pas conforme au RGPD.</p>`;
+      html += `<p><strong>Nombre d'erreurs RGPD :</strong> ${rgpdErrors.length}</p>`;
+      if (rgpdErrors.length > 0) {
+        html += `<ul>`;
+        rgpdErrors.forEach((e) => (html += `<li>${e}</li>`));
+        html += `</ul>`;
+      }
     }
   }
+
+  // --- Détail Mentions légales ---
   if (results?.legals?.result === "success") {
     html += `<h2>Conformité Mentions légales</h2>`;
     if (results.legals.conform) {
       html += `<p>Le site est conforme aux Mentions légales.</p>`;
     } else {
-      html += `<p>Le site n'est pas conforme aux Mentions légales.</p><ul>`;
-      (results.legals.errors || []).forEach((e) => (html += `<li>${e}</li>`));
-      html += `</ul>`;
+      html += `<p>Le site n'est pas conforme aux Mentions légales.</p>`;
+      html += `<p><strong>Nombre d'erreurs Mentions légales :</strong> ${legalsErrors.length}</p>`;
+      if (legalsErrors.length > 0) {
+        html += `<ul>`;
+        legalsErrors.forEach((e) => (html += `<li>${e}</li>`));
+        html += `</ul>`;
+      }
     }
   }
+
+  // --- Détail CGV ---
   if (results?.cgv?.result === "success") {
     html += `<h2>Conformité CGV</h2>`;
     if (results.cgv.conform) {
       html += `<p>Le site est conforme aux CGV.</p>`;
     } else {
-      html += `<p>Le site n'est pas conforme aux CGV.</p><ul>`;
-      (results.cgv.errors || []).forEach((e) => (html += `<li>${e}</li>`));
-      html += `</ul>`;
+      html += `<p>Le site n'est pas conforme aux CGV.</p>`;
+      html += `<p><strong>Nombre d'erreurs CGV :</strong> ${cgvErrors.length}</p>`;
+      if (cgvErrors.length > 0) {
+        html += `<ul>`;
+        cgvErrors.forEach((e) => (html += `<li>${e}</li>`));
+        html += `</ul>`;
+      }
     }
   }
+
+  // --- Détail Cookies ---
   if (results?.cookies?.result === "success") {
     html += `<h2>Conformité Cookies</h2>`;
     if (results.cookies.conform) {
       html += `<p>Le site est conforme aux règles sur les Cookies.</p>`;
     } else {
-      html += `<p>Le site n'est pas conforme aux règles sur les Cookies.</p><ul>`;
-      (results.cookies.errors || []).forEach((e) => (html += `<li>${e}</li>`));
-      html += `</ul>`;
+      html += `<p>Le site n'est pas conforme aux règles sur les Cookies.</p>`;
+      html += `<p><strong>Nombre d'erreurs Cookies :</strong> ${cookiesErrors.length}</p>`;
+      if (cookiesErrors.length > 0) {
+        html += `<ul>`;
+        cookiesErrors.forEach((e) => (html += `<li>${e}</li>`));
+        html += `</ul>`;
+      }
     }
   }
 
   html += `<p>Veuillez vous connecter à votre tableau de bord pour consulter les résultats détaillés.</p>`;
+
+  // --- CTA pour les scans gratuits ---
+  const normalizedType = (scanType || "").toString().toLowerCase();
+  if (normalizedType === "free") {
+    const safeBase =
+      (baseUrl || "").replace(/\/$/, "") || process.env.BASE_URL || "";
+    const signupUrl = `${safeBase}/inscription?scanId=${encodeURIComponent(
+      scanUuid || ""
+    )}`;
+
+    html += `
+      <hr />
+      <h2>Passez à une analyse complète</h2>
+      <p>
+        Vous utilisez actuellement la version <strong>gratuite</strong> du scan.
+        Pour accéder au rapport complet, à l'historique de vos scans et à d'autres fonctionnalités avancées,
+        créez votre compte dès maintenant.
+      </p>
+      <p>
+        <a 
+          href="${signupUrl}" 
+          style="
+            display:inline-block;
+            padding:10px 18px;
+            background-color:#2563eb;
+            color:#ffffff;
+            text-decoration:none;
+            border-radius:6px;
+            font-weight:600;
+          "
+        >
+          Créer mon compte et voir le rapport complet
+        </a>
+      </p>
+    `;
+  }
 
   const mailOptions = {
     from: process.env.SMTP_FROM,
@@ -123,8 +219,9 @@ export async function POST(req) {
     const scanDoc = scansQuery.docs[0];
     const scanRef = scanDoc.ref;
 
-    // Build a Firestore-safe doc (no undefined)
     const results = body || {};
+
+    // Build a Firestore-safe doc (no undefined)
     const writeData = sanitizeForFirestore({
       tokens: results.tokens || 0,
       rgpd: {
@@ -171,14 +268,30 @@ export async function POST(req) {
       process.env.DEFAULT_RESULTS_TO ||
       process.env.SMTP_FROM;
 
-    // Send email (await here; if you want fire-and-forget, do not forget to still return below)
+    const baseUrl =
+      process.env.BASE_URL ||
+      process.env.NEXT_PUBLIC_BASE_URL ||
+      process.env.NEXT_PUBLIC_APP_URL ||
+      "";
+
+    // on essaie de récupérer le type du scan depuis plusieurs endroits possibles
+    const scanType =
+      scanData.type ||
+      scanData.scanType ||
+      scanData.plan ||
+      results.type ||
+      results.scanType ||
+      null;
+
     await sendScanResultsEmail({
       to: recipient,
       website: scanData.website || results.website,
       results,
+      scanUuid: scanData.scanUuid || body.uuid,
+      scanType,
+      baseUrl,
     });
 
-    // ✅ Return the response
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error("[scan-email] error:", error);
